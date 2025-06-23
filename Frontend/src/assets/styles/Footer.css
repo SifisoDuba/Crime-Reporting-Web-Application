@@ -1,0 +1,102 @@
+
+ body {
+  margin: 0;
+  padding: 0;
+}
+.footer {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  background-color: #1d1d1d;
+  color: #fff;
+  padding: 2rem 1rem;
+  font-size: 1rem;
+  font-family: Arial, sans-serif;
+}
+
+.footer-content {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  max-width: 2000px;
+  margin: 0 auto;
+  margin-left: 10px;
+  gap: 2rem;
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* Links */
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.footer-links a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+/* Info section */
+.footer-info p {
+  margin: 0.3rem 0;
+  text-align: center;
+}
+
+/* Emergency Contacts */
+.Emergency-contacts p {
+  margin: 0.3rem 0;
+  text-align: left;
+}
+
+.disclaimer {
+  color: #ff6b6b;
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    margin-left: 0;
+    margin: 0;
+    font-size: 13px;
+    gap: 1rem; /* Reduced gap */
+  }
+
+  .footer-links,
+  .footer-info,
+  .Emergency-contacts {
+    margin: 0; /* Remove any default margin */
+    padding: 0; /* Remove any padding */
+  }
+
+  .footer-links {
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer-info p,
+  .Emergency-contacts p {
+    text-align: center;
+  }
+
+  .disclaimer {
+    margin-top: 0.3rem; /* Slightly less spacing */
+  }
+}
+
+
+
