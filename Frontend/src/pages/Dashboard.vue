@@ -1,7 +1,7 @@
 <template>
-  <div class="dashboard">
+  <div class="Dashboard">
     <Navbar />
-    <h2>Dashboard</h2>
+    <h3 class="Header">Dashboard</h3>
     <NewsPost />
     <Footer />
   </div>
@@ -22,8 +22,14 @@ export default {
 };
 </script>
 <style scoped>
-.dashboard {
-  background-color: #c1c1c1;
+.Dashboard {
+  background-color:  #e6eff5;
+  font-family: Arial, sans-seri;
+}
+.Header {
+  color: #333;
+  margin-top: 20px;
+  margin-left: 10px;
 }
 </style>
 

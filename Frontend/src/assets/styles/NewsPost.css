@@ -1,8 +1,10 @@
 .news-card {
   padding: 1rem;
-  border: 1px solid #0048FF;
+  border: 1px solid #61c5ff;
+  border-width: 2px;
   margin-bottom: 1rem;
-  border-radius: 8px;
+  margin-top: -10px;
+  border-radius: 5px;
   background-color: #f9f9f9;
   font-family: Arial, sans-serif;
   margin-left: 10px;
