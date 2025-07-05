@@ -1,6 +1,6 @@
 <template>
   <div class="news-card">
-    <h3>Rubber Ducks in Pinehill</h3>
+    <h4>Rubber Ducks in Pinehill</h4>
     <p>
       Residents of Pinehill Heights woke up to a bizarre scene this morning when a four-meter-tall inflatable rubber duck was spotted drifting slowly down Birch Avenue, causing traffic delays and widespread confusion. Witnesses described the duck as “eerily calm” and “judging everyone silently.” Commuters were forced to navigate around the giant yellow obstruction while local children cheered it on from sidewalks. “At first, I thought it was a hallucination,” said longtime resident Mr. Daniels, “but then it honked. I don’t even know how.”
     </p>
