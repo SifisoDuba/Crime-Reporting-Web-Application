@@ -5,16 +5,16 @@
         <img src="@/assets/images/logo.png" alt="Logo" width="65" height="65" />
       </router-link>
     </div>
-
     <div class="hamburger" @click="toggleMenu">&#9776;</div>
 
     <ul :class="['Navbar', { active: isMenuOpen }]">
       <div class="nav-center">
-        <li><router-link to="/" exact>Dashboard</router-link></li>
-        <li><router-link to="/report">Report crime</router-link></li>
+        <li><router-link to="/dashboard" exact>Dashboard</router-link></li>
+        <li><router-link to="/admin-login">Report crime</router-link></li>
         <li><router-link to="/crimes">Crimes</router-link></li>
         <li><router-link to="/emergency">Emergency contacts</router-link></li>
         <li><router-link to="/about">About us</router-link></li>
+        <li><router-link to="/reportingpage">Report Crime</router-link></li>
       </div>
       <div class="nav-right">
 <li>
@@ -29,7 +29,6 @@
     />
   </router-link>
 </li>
-        <li><router-link to="/logout">Logout</router-link></li>
       </div>
     </ul>
   </nav>

@@ -1,29 +1,31 @@
 <template>
-  <div class="dashboard">
-    <Navbar />
-    <h2>Dashboard</h2>
+  <div class="Dashboard">
+    <h3 class="Header">Dashboard</h3>
+
     <NewsPost />
-    <Footer />
   </div>
 </template>
 
 <script>
 import NewsPost from "../components/NewsPost.vue";
-import Navbar from "../components/Navbar.vue";
-import Footer from "../components/Footer.vue";
+
 
 export default {
   name: "DashboardPage",
   components: {
     NewsPost,
-    Navbar,
-    Footer
   }
 };
 </script>
 <style scoped>
-.dashboard {
-  background-color: #c1c1c1;
+.Dashboard {
+  background-color:  #e6eff5;
+  font-family: Arial, sans-seri;
+}
+.Header {
+  color: #333;
+  margin-top: 20px;
+  margin-left: 10px;
 }
 </style>
 
