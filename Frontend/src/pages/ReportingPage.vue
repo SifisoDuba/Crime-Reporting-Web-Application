@@ -124,7 +124,7 @@ export default {
           const lng = pos.coords.longitude.toFixed(6);
           this.form.location = `Current Location (${lat}, ${lng})`;
           this.locationUsed = true;
-        }, err => {
+        }, alert => {
           alert("Location access denied or unavailable.");
         });
       }
