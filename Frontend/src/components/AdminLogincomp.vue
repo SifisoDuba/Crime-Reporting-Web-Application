@@ -1,4 +1,4 @@
- <!-- AdminLoginComp.vue -->
+<!-- AdminLoginComp.vue -->
 <template>
   <form @submit.prevent="handleLogin" class="login-form">
     <div class="form-group">
@@ -11,7 +11,7 @@
     </div>
     <p class="forgot-password"><a href="#">Forgot Password?</a></p>
     <div class="button-container">
-      <button type="submit" :disabled="isLoading">{{ isLoading ? 'Logging in...' : 'Login' }}''</button>
+      <button type="submit" :disabled="isLoading">{{ isLoading ? 'Logging in...' : 'Login' }}</button>
     </div>
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
   </form>
@@ -63,26 +63,15 @@ export default {
 </script>
 
 <style scoped>
-.login-container {
-  max-width: 400px;
-  margin: auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 5px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-}
-
-.admin-image {
-  width: 100px; /* Adjust the size as needed */
-  height: auto; /* Maintain aspect ratio */
-  margin-bottom: 20px; /* Space between image and form */
+*{
+  font-size: 1rem;
+  font-family: Arial, sans-serif;
 }
 
 .login-form {
-  display: flex; /* Add this line */
-  flex-direction: column; /* Add this line */
+  display: flex;
+  flex-direction: column;
+  width: 100%; /* Full width of the container */
 }
 
 .form-group {
@@ -97,8 +86,8 @@ label {
 
 input[type="text"],
 input[type="password"] {
-  width: 100%;
-  padding: 8px;
+  width: 100%; /* Full width */
+  padding: 12px; /* Increase padding for better touch targets */
   background-color: #B1AFB2;
   border: 1px solid #1D1B20;
   border-radius: 4px;
@@ -106,8 +95,8 @@ input[type="password"] {
 }
 
 button { 
-  width: 60%;
-  padding: 10px;
+  width: 100%; /* Full width */
+  padding: 12px; /* Increase padding for better touch targets */
   background-color: #2D2C2D; /* Change button color to black */
   color: white;
   border: none;
@@ -119,10 +108,10 @@ button:hover {
   background-color: #222; /* Darker shade on hover */
 }
 
-.button-container{
-  display:flex;
+.button-container {
+  display: flex;
   justify-content: center;
-  width: 100%
+  width: 100%;
 }
 
 .forgot-password {
@@ -142,5 +131,17 @@ button:hover {
 .error {
   color: red;
   margin-top: 10px;
+}
+
+/* Media Queries for AdminLoginComp */
+@media (max-width: 600px) {
+  input[type="text"],
+  input[type="password"] {
+    padding: 10px; /* Adjust padding for smaller screens */
+  }
+
+  button {
+    padding: 10px; /* Adjust button padding */
+  }
 }
 </style>

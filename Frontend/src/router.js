@@ -3,12 +3,14 @@ import AdminLogin from './pages/AdminLogin.vue'
 import Dashboard from './pages/Dashboard.vue'
 import Landing from './pages/Landing.vue'
 import ReportingPage from './pages/ReportingPage.vue'
+import AdminViewReports from './pages/AdminViewReports.vue'
 
 const routes = [
     {path : '/', component: Landing},
     {path : '/admin-login', component: AdminLogin},
     {path : '/dashboard', component: Dashboard},
     {path : '/reportingpage', component: ReportingPage},
+    {path : '/admin-view-report', component: AdminViewReports}
 ]
 const router = createRouter({
     history: createWebHistory(),

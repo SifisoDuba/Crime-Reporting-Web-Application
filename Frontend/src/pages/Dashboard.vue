@@ -1,6 +1,6 @@
 <template>
   <div class="Dashboard">
-    <h3 class="Header">Dashboard</h3>
+    <h3 class="Header">Dashboard Z</h3>
 
     <NewsPost />
   </div>
