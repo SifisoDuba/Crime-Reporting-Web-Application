@@ -1,7 +1,10 @@
 <template>
+  <div class="min-h-screen bg-gray-100 flex items-center justify-center">
+    <div class="bg-white w-[360px] p-4 rounded-md shadow-lg space-y-4 font-sans text-[13px] leading-5">
   <div class="landing">
     <h2>Landing Page</h2>
 
+    <div class="text-gray-800">
     <p>
       Your community’s first line of defense.<br>
       This is a trusted neighbourhood crime response platform designed to keep you and your loved ones safe. Report crimes instantly, alert emergency services with a tap, and stay informed with real-time updates on local crime hotspots.<br>
@@ -9,6 +12,7 @@
       Because safety should never be optional.<br>
       Sign up today to protect what matters most.
     </p>
+    </div>
 
     <!-- Report Button -->
     <div class="text-center">
@@ -60,6 +64,8 @@
         </p>
       </div>
     </div>
+  </div>
+  </div>
   </div>
 </template>
 
