@@ -10,11 +10,9 @@
     <ul :class="['Navbar', { active: isMenuOpen }]">
       <div class="nav-center">
         <li><router-link to="/dashboard" exact>Dashboard</router-link></li>
-        <li><router-link to="/admin-login">Report crime</router-link></li>
-        <li><router-link to="/crimes">Crimes</router-link></li>
-        <li><router-link to="/emergency">Emergency contacts</router-link></li>
+        <li><router-link to="/reportingpage">Report crime</router-link></li>
+        <li><router-link to="/emergency-contacts">Emergency contacts</router-link></li>
         <li><router-link to="/reportsummary">About us</router-link></li>
-        <li><router-link to="/reportingpage">Report Crime</router-link></li>
       </div>
       <div class="nav-right">
 <li>

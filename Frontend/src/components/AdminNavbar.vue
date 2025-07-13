@@ -9,13 +9,11 @@
 
   <ul :class="['Navbar', { active: isMenuOpen }]">
     <div class="nav-center">
-        <li><router-link to="/dashboard" exact>Dashboard</router-link></li>
-        <li><router-link to="/view-reports">View Reports</router-link></li>
+        <li><router-link to="/admin-dashboard" exact>Dashboard</router-link></li>
+        <li><router-link to="/admin-view-report">View Reports</router-link></li>
         <li><router-link to="/report-summary">Report Summary</router-link></li>
-        <li><router-link to="/profiles">Profiles</router-link></li>
-        <li><router-link to="/emergency">Emergency contacts</router-link></li>
-        <li><router-link to="/about">About us</router-link></li>
-        <li><router-link to="/reportingpage">Report Crime</router-link></li>
+        <li><router-link to="/admin-emergency-contacts">Emergency contacts</router-link></li>
+        <li><router-link to="/abo">About us</router-link></li>
     </div>
    <div class="nav-right">
 <li>
