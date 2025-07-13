@@ -2,11 +2,10 @@
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-links">
-        <router-link to="/">Dashboard</router-link>
-        <router-link to="/report">Report Crime</router-link>
-        <router-link to="/about">Crimes</router-link>
-        <router-link to="/contact">Emergency contacts</router-link>
-        <router-link to="/contact">About us</router-link>
+        <router-link to="/dashboard">Dashboard</router-link>
+        <router-link to="/reportingpage">Report Crime</router-link>
+        <router-link to="/emergency-contacts">Emergency contacts</router-link>
+        <router-link to="/">About us</router-link>
       </div>
       <div class="footer-info">
         <p>©{{ new Date().getFullYear() }} Crime Report System. All rights reserved.</p>

@@ -1,27 +1,20 @@
 <template>
   <div class="admin-reports-view">
-    <AdminNavbar />
     <ViewReportsComp 
       :reports="reports" 
       :status-options="statusOptions"
       @status-selected="handleStatusSelected"
       @add-to-history="handleAddToHistory"
     />
-    <AdminFooter />
-    <div class="footer-spacer"></div>
   </div>
 </template>
 
 <script>
 import ViewReportsComp from '../components/ViewReportscomp.vue'
-import AdminNavbar from '../components/AdminNavbar.vue'
-import AdminFooter from '../components/AdminFooter.vue'
 
 export default {
   components: {
-    AdminNavbar,
     ViewReportsComp,
-    AdminFooter,
   },
   data() {
     return {
