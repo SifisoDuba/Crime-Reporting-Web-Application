@@ -23,7 +23,7 @@ export default {
 }
 .Header {
   color: #333;
-  margin-top: 20px;
+  margin-top: 0px;
   margin-left: 10px;
 }
 </style>

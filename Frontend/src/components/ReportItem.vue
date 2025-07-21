@@ -1,14 +1,28 @@
 <template>
   <div class="report-item" @click="$emit('open')">
-    <p><strong>Crime ID:</strong> CR-001</p>
-    <p><strong>Title:</strong> House Burglary</p>
-    <p><strong>Reporter:</strong> Sifiso Duba</p>
+    <p><strong>Crime ID:</strong> {{ id }}</p>
+    <p><strong>Title:</strong> {{ title }}</p>
+    <p><strong>Reporter:</strong> {{ reporter }}</p>
   </div>
 </template>
 
 <script>
 export default {
   name: "ReportItem",
+  props: {
+    id: {
+      type: String,
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    reporter: {
+      type: String,
+      required: true,
+    },
+  },
 };
 </script>
 

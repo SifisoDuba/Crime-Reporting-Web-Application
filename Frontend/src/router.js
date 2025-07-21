@@ -9,6 +9,8 @@ import EmergencyContacts from './pages/EmergencyContacts.vue'
 import Profile from './pages/Profile.vue'
 import AdminDashboard from './pages/AdminDashboard.vue'
 import AdminEmergencyContacts from './pages/AdminEmergencyContacts.vue'
+import LoginView from './pages/LoginView.vue'
+import RegisterView from './pages/RegisterView.vue'
 
 const routes = [
     {path : '/', component: Landing},
@@ -19,8 +21,13 @@ const routes = [
     {path : '/admin-view-report', component: AdminViewReports},
     {path : '/emergency-contacts', component: EmergencyContacts},
     {path : '/profile', component: Profile},
+    {path : '/personal-details', component: () => import('./pages/PersonalDetails.vue')},
+    {path : '/address', component: () => import('./pages/Address.vue')},
+    {path : '/profile-picture', component: () => import('./pages/ProfilePicture.vue')},
     {path : '/admin-dashboard', component: AdminDashboard},
     {path : '/admin-emergency-contacts', component: AdminEmergencyContacts},
+    {path : '/login', component: LoginView},
+    {path : '/register', component: RegisterView},
 
 ]
 const router = createRouter({

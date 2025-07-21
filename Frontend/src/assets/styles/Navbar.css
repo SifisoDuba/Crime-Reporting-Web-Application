@@ -96,6 +96,8 @@ body {
   .Navbar li {
     width: 100%;
     margin : 0;
+    display: none;
+    cursor: pointer;
   }
 
   .Navbar li a {
@@ -111,4 +113,61 @@ body {
     margin-left: auto;
     padding-right: 1rem;
   }
+}
+
+/* Profile dropdown styles */
+.profile-menu {
+  position: relative;
+  cursor: pointer;
+}
+
+.profile-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-dropdown {
+  padding-top: 10px;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: rgba(255, 255, 255);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  margin-left: 15px;;
+  min-width: 220px;
+  z-index: 1000;
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.3s ease;
+}
+
+.profile-dropdown li {
+  padding: 10px 20px;
+  white-space: nowrap;
+  border-bottom: 1px solid #eee;
+}
+
+.profile-dropdown li:last-child {
+  border-bottom: none;
+}
+
+.profile-dropdown li:hover {
+  background-color: #10b981;
+}
+
+.profile-dropdown li a {
+  color: #333;
+  text-decoration: none;
+  font-weight: 600;
+  display: block;
+}
+
+/* Prevent navbar content shift when dropdown opens */
+.Navbar > div.nav-right {
+  position: relative;
+  z-index: 1;
 }

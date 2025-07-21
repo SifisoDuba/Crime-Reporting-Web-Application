@@ -2,9 +2,11 @@
   <div id="app">
     <Navbar v-if="showUserLayout" />
     <AdminNavbar v-else-if="showAdminLayout" />
-    <main>
+  <main>
+    <transition name="slide-fade" mode="out-in">
       <router-view />
-    </main>
+    </transition>
+  </main>
     <Footer v-if="showUserLayout" />
     <AdminFooter v-else-if="showAdminLayout" />
   </div>
@@ -58,5 +60,15 @@ export default {
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
+}
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.5s ease;
+}
+
+.slide-fade-enter,
+.slide-fade-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
 }
 </style>
