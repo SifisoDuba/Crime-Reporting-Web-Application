@@ -2,9 +2,21 @@
   <div class="report-list-page">
     <h2>All Crime Reports</h2>
 
-    <ReportItem @open="showSummary = true" />
-    <ReportItem @open="showSummary = true" />
-    <ReportItem @open="showSummary = true" />
+    <input
+      type="text"
+      v-model="searchQuery"
+      placeholder="Search by Crime ID"
+      class="search-bar"
+    />
+
+    <ReportItem
+      v-for="report in filteredReports"
+      :key="report.id"
+      :id="report.id"
+      :title="report.title"
+      :reporter="report.reporter"
+      @open="showSummary = true"
+    />
 
     <div class="modal-overlay" v-if="showSummary">
       <div class="modal-content">
@@ -28,7 +40,23 @@ export default {
   data() {
     return {
       showSummary: false,
+      searchQuery: "",
+      reports: [
+        { id: "CR-001", title: "House Burglary", reporter: "Sifiso Duba" },
+        { id: "CR-002", title: "Car Theft", reporter: "John Doe" },
+        { id: "CR-003", title: "Assault", reporter: "Jane Smith" },
+      ],
     };
+  },
+  computed: {
+    filteredReports() {
+      if (!this.searchQuery) {
+        return this.reports;
+      }
+      return this.reports.filter((report) =>
+        report.id.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    },
   },
 };
 </script>
@@ -39,6 +67,15 @@ export default {
   margin: 30px auto;
   padding: 20px;
   font-family: "Segoe UI", sans-serif;
+}
+
+.search-bar {
+  width: 100%;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 }
 
 .modal-overlay {
