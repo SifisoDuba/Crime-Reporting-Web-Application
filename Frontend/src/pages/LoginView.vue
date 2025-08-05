@@ -34,7 +34,7 @@
         <hr>
         <p class="register-link">
           Admins, please login here:
-          <router-link to="/">Admin Login</router-link>
+          <router-link to="/admin-login">Admin Login</router-link>
         </p>
       </div>
     </div>
