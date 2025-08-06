@@ -15,7 +15,13 @@
           <div v-if="step === 2">
             <div class="input-group" v-for="field in stepTwoFields" :key="field.id">
               <label :for="field.id">{{ field.label }}</label>
-              <input :id="field.id" v-model="form[field.id]" :type="field.type" :required="field.required" />
+              <select v-if="field.type === 'select'" :id="field.id" v-model="form[field.id]" :required="field.required">
+                <option disabled value="">Select a province</option>
+                <option v-for="option in field.options" :key="option" :value="option">
+                  {{ option }}
+                </option>
+              </select>
+              <input v-else :id="field.id" :type="field.type" v-model="form[field.id]" :required="field.required" />
             </div>
           </div>
           <div v-if="step === 3">
@@ -28,6 +34,7 @@
               <input id="timestamp" :value="form.timestamp" disabled />
             </div>
           </div>
+          <p v-if="registerError" class="error-message">{{ registerError +'\n'}}</p>
           <div class="navigation-buttons">
             <button type="button" class="nav-btn" @click="prevStep" :disabled="step === 1">← Previous</button>
             <button v-if="step < 3" type="button" class="nav-btn" @click="nextStep">Next →</button>
@@ -56,6 +63,7 @@ export default {
   data() {
     return {
       step: 1,
+      registerError: '',
       form: {
         fullName: '',
         idNumber: '',
@@ -68,7 +76,7 @@ export default {
         houseNumber: '',
         province: '',
         notes: '',
-        timestamp: new Date().toLocaleString()
+        timestamp: new Date().toLocaleString(),
       }
     }
   },
@@ -102,7 +110,10 @@ export default {
         { id: 'address', label: 'Street Address', type: 'text', required: true },
         { id: 'city', label: 'City/Town', type: 'text', required: true },
         { id: 'houseNumber', label: 'House Number', type: 'text', required: true },
-        { id: 'province', label: 'Province', type: 'text', required: true },
+        {
+          id: 'province', label: 'Province', type: 'select', required: true,
+          options: ['Eastern Cape', 'Free State', 'Gauteng', 'KwaZulu-Natal', 'Limpopo', 'Mpumalanga', 'North West', 'Northern Cape', 'Western Cape']
+        }
       ];
     }
   },
@@ -114,6 +125,7 @@ export default {
       if (this.step > 1) this.step--;
     },
     async handleRegister() {
+      this.registerError = '';
       if (!this.isFormComplete) {
         alert('Please fill all required fields.');
         return;
@@ -123,16 +135,19 @@ export default {
       try {
         const res = await axios.post('http://localhost:3000/register', this.form);
         console.log('Success', res.data.message || 'Registration successful!');
+        this.$router.push('/login');
 
       } catch (err) {
-        if (err.response && err.response.data && err.response.data.error) {
-          alert(`❌ ${err.response.data.error}`);
+        if (err.response && err.response.data && err.response.data.errors) {
+          this.registerError = err.response.data.errors.join('\n');
+          console.log('Error:', this.registerError);
+        }else if (err.response && err.response.data && err.response.data.message) {
+          this.registerError = err.response.data.message; 
+        console.log('Error:', this.registerError);
         } else {
-          alert('Something went wrong.');
+          this.registerError = 'Something went wrong.'
         }
       }
-      console.log(`Registration complete for ${this.form.email}!`);
-      this.$router.push('/login');
     }
   }
 }
@@ -144,6 +159,11 @@ export default {
   height: 100vh;
   font-family: 'Inter', sans-serif;
   background-image: url('@/assets/images/pattern.jpg');
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
 }
 
 .form-section {
@@ -188,6 +208,14 @@ export default {
 
 .input-group input,
 textarea {
+  padding: 12px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fff;
+}
+
+.input-group select {
   padding: 12px;
   border: 1.5px solid #d1d5db;
   border-radius: 8px;

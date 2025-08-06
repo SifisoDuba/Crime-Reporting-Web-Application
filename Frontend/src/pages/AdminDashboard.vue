@@ -43,6 +43,7 @@
 
 <script>
 import NewsPost from "../components/NewsPost.vue";
+import axios from 'axios';
 
 export default {
   name: "AdminDashboardPage",
@@ -53,20 +54,13 @@ export default {
     return {
       showModal: false,
       timestamp: '',
+      posts: [],
       newPost: {
         title: '',
         author: '',
-        content: ''
+        content: '',
+        timestamp: new Date().toLocaleString(),
       },
-      posts: [
-        {
-          id: 1,
-          title: "Welcome to the Dashboard",
-          content: "This is your admin panel.",
-          author: "System",
-          timestamp: new Date().toLocaleString()
-        }
-      ]
     };
   },
   methods: {
@@ -74,13 +68,25 @@ export default {
       this.timestamp = new Date().toLocaleString();
       this.showModal = true;
     },
-    submitPost() {
+    async submitPost() {
       if (!this.newPost.title || !this.newPost.content || !this.newPost.author) {
         alert("All fields are required.");
         return;
       }
+      try {
+        const response = await axios.post('http://localhost:3000/upload-post', this.newPost);
+        console.log(response);
+      }catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+          alert(err.response.data.message);
+          console.log('Error:', err.response.data.message);
+        } else {
+          alert('Something went wrong.');
+          console.log('Error:', err);
+        }
+    }
 
-      this.posts.unshift({
+      this.posts ??=[].unshift({
         id: this.posts.length + 1,
         title: this.newPost.title,
         author: this.newPost.author,
