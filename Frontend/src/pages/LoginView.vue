@@ -42,6 +42,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   name: 'LoginView',
   data() {
@@ -57,7 +58,7 @@ export default {
     }
   },
   methods: {
-    handleLogin() {
+    async handleLogin() {
       this.loginError = '';
       if (!this.email || !this.password) {
         this.loginError = "Please fill in both fields.";
@@ -65,10 +66,25 @@ export default {
       }
 
       const validUser = {
-        email: "testuser@example.com",
+        email: "test@gmail.com",
         password: "password123"
       };
 
+      console.log("Attempting login with:", this.email, this.password);
+
+      try {
+        const res = await axios.post('http://localhost:3000/login', this.form);
+        console.log('Success', res.data.message || 'Registration successful!');
+        this.$router.push('/login');
+
+      } catch (err) {
+        console.error('Login error:', err);
+        if (err.response && err.response.data && err.response.data.message) {
+          this.loginError = err.response.data.message;
+        } else {
+          this.loginError = 'Something went wrong. Please try again.';
+        }
+      }
       if (this.email === validUser.email && this.password === validUser.password) {
         localStorage.setItem('isLoggedIn', 'true');
         this.$router.push('/dashboard');
