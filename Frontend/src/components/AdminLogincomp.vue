@@ -17,50 +17,29 @@
   </form>
 </template>
 
+
 <script>
 export default {
   name: 'AdminLoginComp',
-  data() {
-    return {
-      username: '',
-      password: '',
-      errorMessage: '',
-      isLoading: false
-    };
+  props: {
+    form: {
+      type: Object,
+      required: true
+    },
+    loginError: {
+      type: String,
+      default: ''
+    }
   },
   methods: {
-    async handleLogin() {
-      this.errorMessage = ''; // Reset error message
-      this.isLoading = true; // Set loading state
-      try {
-        const response = await fetch('http://localhost:3000/api/admin/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            username: this.username,
-            password: this.password
-          })
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Login failed');
-        }
-
-        const data = await response.json();
-        localStorage.setItem('token', data.token);
-        this.$router.push('/admin/dashboard');
-      } catch (error) {
-        this.errorMessage = error.message;
-      } finally {
-        this.isLoading = false; // Reset loading state
-      }
+    onSubmit() {
+      this.$emit('submit');
     }
   }
 };
 </script>
+
+
 
 <style scoped>
 *{

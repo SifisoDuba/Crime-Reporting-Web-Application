@@ -11,17 +11,42 @@
 </template>
 
 
-
 <script>
-import AdminLoginComp from '../components/AdminLogincomp.vue'; // Adjust the path as necessary
+import AdminLoginComp from '../components/AdminLogincomp.vue';
+import axios from 'axios';
 
 export default {
   name: 'AdminLogin',
   components: {
-    AdminLoginComp
+    AdminLoginComp,
+  },
+  data() {
+    return {
+      form: {
+        username: '',
+        password: ''
+      },
+      loginError: ''
+    };
+  },
+  methods: {
+    async handleLogin() {
+      this.loginError = '';
+      console.log(`Attempting login for ${this.form.username}...`);
+
+      try {
+        const res = await axios.post('http://localhost:3000/admin-login', this.form);
+        console.log('Success', res.data.message || 'Login successful!');
+        this.$router.push('/admin-dashboard');
+      } catch (err) {
+        this.loginError = err.response?.data?.error || 'Something went wrong.';
+        console.log('Error:', this.loginError);
+      }
+    }
   }
 };
 </script>
+
 
 <style scoped>
 .login-page {

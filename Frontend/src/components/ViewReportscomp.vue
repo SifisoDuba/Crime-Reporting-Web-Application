@@ -1,6 +1,8 @@
 <template>
   <div class="reports-component">
     <h1>Reports</h1>
+    <div v-if="$attrs.loading" class="loading">loading...</div>
+    <div v-else-if="$attrs.error" class="error">{{ $attrs.error }}</div>
     <div class="cards-container">
       <div class="report-card" v-for="report in reports" :key="report.id">
         <div class="card-header">
@@ -47,6 +49,7 @@
 import { ref } from 'vue';
 
 export default {
+  inheritAttrs: false,
   props: {
     reports: {
       type: Array,
@@ -55,6 +58,10 @@ export default {
     statusOptions: {
       type: Array,
       required: true
+    },
+    reportId: {
+      type: String,
+      required: true,
     }
   },
   setup(props, { emit }) {
