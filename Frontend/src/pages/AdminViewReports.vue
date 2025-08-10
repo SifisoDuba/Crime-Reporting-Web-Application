@@ -10,6 +10,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import ViewReportsComp from '../components/ViewReportscomp.vue'
 
 export default {
@@ -58,20 +59,49 @@ export default {
           authorities: 'Fire Department',
           location: 'White House, Washington D.C.'
         }
-      ]
+      ],
+      loading : false,
+      error : null
     };
   },
   methods: {
-    handleStatusSelected({ reportId, status }) {
-      console.log(`Report ${reportId} status selected: ${status}`);
-      // Here you would typically update the report status in your database
-    },
-    handleAddToHistory(reportId) {
-      console.log(`Adding report ${reportId} to history`);
-      // Here you would typically add the report to history in your database
+  async fetchReports(){
+    try {
+      const response = await axios.get('http://localhost:3000/api/reports');
+      this.reports = response.data;
+    } catch (err){
+      this.error = 'Failed to load reports';
+      console.error(err);
     }
+  },
+
+    async handleStatusSelected({ reportId, status }) {
+      try {
+        await axios.patch(`http://localhost:3000/api/reports/${reportId}/status`, { status });
+        await this.fetchReports(); // Refresh reports after updating status
+      } catch (err) {
+        this.error = 'Failed to update status';
+        console.error(err);
+      }
+    },
+    },
+   async handleAddToHistory(reportId) {
+      try {
+        await axios.post(`http://localhost:3000/api/reports/${reportId}/history`);
+        await this.fetchReports(); // Refresh reports after adding to history
+      } catch (err) {
+        this.error = 'Failed to add report to history';
+        console.error(err);
+      }
+    },
+    async mounted() {
+    if (!localStorage.getItem('authToken')) {
+      this.$router.push('/login');
+      return;
+    }
+    await this.fetchReports(); // Fetch reports when the component is mounted
   }
-};
+  };
 </script>
 
 <style scoped>
