@@ -1,31 +1,25 @@
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-
+const jwt = require('jsonwebtoken'); 
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const JWT_SECRET = 'your-super-secret-key-for-jwt'; 
+
 
 app.use(cors({
-  origin: 'http://localhost:8080',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin: 'http://localhost:8080', 
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
   credentials: true
 }));
-app.use(express.json());
+app.use(express.json()); 
 
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
-app.get(/(.*)/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
-
-//REGISTER REQUEST
+// REGISTER REQUEST
 app.post('/register', (req, res) => {
-  const { fullName, idNumber, email, password, confirmPassword, phone, address, city, houseNumber, province, notes, timestamp } = req.body;
+  const { fullName, idNumber, email, password, confirmPassword, phone, address, city, houseNumber, province } = req.body;
   console.log('Received registration data:', req.body);
 
   const errors = [];
@@ -33,160 +27,173 @@ app.post('/register', (req, res) => {
   if (!fullName || !idNumber || !email || !password || !confirmPassword || !phone || !address || !city || !houseNumber || !province) {
     errors.push('Please fill in all required fields.');
   }
-
-  if (!/^\d{13}$/.test(idNumber)) {
-    errors.push('ID number must be exactly 13 digits.');
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    errors.push('Invalid email format.');
-  }
-
   if (password !== confirmPassword) {
     errors.push('Password and Confirm Password do not match.');
   }
-
-  if (password.length < 6) {
-    errors.push('Password must be at least 6 characters long.');
-  }
-
-  if (!/^0\d{9}$/.test(phone)) {
-    errors.push('Phone number must be 10 digits and start with 0.');
-  }
+ 
+  
   if (errors.length > 0) {
     return res.status(400).json({ errors });
   }
 
-  return res.status(200).json({
-    message: 'Validation passed ✅',
-    user: {
-      fullName,
-    }
+  return res.status(201).json({
+    message: 'Registration successful! ',
+    user: { fullName, email }
   });
 });
 
-//LOGIN REQUEST
+// LOGIN REQUEST
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   console.log('Received login data:', req.body);
 
-  const errors = [];
-
   if (!email || !password) {
-    errors.push('Please fill in both fields.');
+    return res.status(400).json({ errors: ['Please fill in both fields.'] });
   }
 
-  if (errors.length > 0) {
-    return res.status(400).json({ errors });
-  }
-
+ 
   const validUser = {
     email: "test@gmail.com",
-   password: "password123"
-  };  
+    password: "password123"
+  };
+
+  if (email === validUser.email && password === validUser.password) {
+    return res.status(200).json({ message: 'Login successful! ' });
+  } else {
+    return res.status(401).json({ errors: ['Invalid email or password.'] });
+  }
 });
 
-//UPLOAD POST REQUEST
+
+let reports = [
+  { id: 1, incidentType: 'Theft', description: 'Cookie jar was stolen from the kitchen.', location: '123 Sesame Street', severity: 'High', dateTime: '2025-08-14T10:00', anonymous: false, followUp: true },
+  { id: 2, incidentType: 'Vandalism', description: 'Graffiti on the park bench.', location: 'Central Park', severity: 'Medium', dateTime: '2025-08-13T22:15', anonymous: true, followUp: false },
+];
+
+
+app.post('/api/reports', (req, res) => {
+  console.log('Received new report data:', req.body);
+  const { incidentType, description, location, severity, dateTime, anonymous, followUp } = req.body;
+
+  // Basic validation
+  if (!incidentType || !description || !location) {
+    return res.status(400).json({ message: 'Missing required fields: incidentType, description, and location are required.' });
+  }
+
+  const newId = reports.length > 0 ? Math.max(...reports.map(r => r.id)) + 1 : 1;
+  const newReport = {
+    id: newId,
+    incidentType,
+    description,
+    location,
+    severity,
+    dateTime,
+    anonymous,
+    followUp
+  };
+  reports.push(newReport);
+
+
+  res.status(201).json({
+    message: 'Report submitted successfully!',
+    reportId: `RPT-${newId}-${Date.now()}`
+  });
+});
+
+
+// GET ALL REPORTS
+app.get('/api/reports', (req, res) => {
+  res.json(reports);
+});
+
+// UPDATE REPORT STATUS
+app.patch('/api/reports/:id/status', (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  let updatedReport = null;
+  reports = reports.map(report => {
+    if (report.id === parseInt(id)) {
+      updatedReport = { ...report, status };
+      return updatedReport;
+    }
+    return report;
+  });
+
+  if (updatedReport) {
+    res.json({ message: 'Status updated', report: updatedReport });
+  } else {
+    res.status(404).json({ message: 'Report not found' });
+  }
+});
+
+// ARCHIVE (DELETE) A REPORT
+app.post('/api/reports/:id/archive', (req, res) => {
+  const { id } = req.params;
+  const initialLength = reports.length;
+ 
+  reports = reports.filter(report => report.id !== parseInt(id));
+
+  if (reports.length < initialLength) {
+    res.json({ message: 'Report archived' });
+  } else {
+    res.status(404).json({ message: 'Report not found' });
+  }
+});
+
+
+
+// UPLOAD POST REQUEST
 app.post('/upload-post', (req, res) => {
   const { title, content, author, timestamp } = req.body;
   console.log('Received post data:', req.body);
 
   if (!title || !content || !author) {
-    return res.status(400).json('Please fill in all fields.');
+    return res.status(400).json({ error: 'Please fill in all fields.' });
   }
-  return res.status(200).json({
-    message: 'Post uploaded successfully ✅',
-    post: {
-      title,
-      content,
-      author,
-      timestamp
-    }
+  return res.status(201).json({
+    message: 'Post uploaded successfully ',
+    post: { title, content, author, timestamp }
   });
 });
+
 
 // ADMIN LOGIN REQUEST
 app.post('/admin-login', (req, res) => {
   const { username, password } = req.body;
-  console.log('Received login data:', req.body);
-  const errors = [];
-  // Validate input
+  console.log('Received admin login data:', req.body);
+  
   if (!username || !password) {
-    errors.push('Please fill in both fields.');
+    return res.status(400).json({ errors: ['Please fill in both fields.'] });
   }
-  if (errors.length > 0) {
-    return res.status(400).json({ errors });
-  }
+  
   const validAdmin = {
     username: 'admin',
     password: 'admin123'
   };
-  // Check credentials
+
   if (username !== validAdmin.username || password !== validAdmin.password) {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
-  // Generate JWT token
+  
+  
   const token = jwt.sign(
     { username, role: 'admin' },
     JWT_SECRET,
     { expiresIn: '1h' }
   );
+
   res.json({ token });
 });
 
-//REPORTS REQUEST
-let reports = [
-  {
-    id:1,
-    title: 'Murder',
-     description: 'I found Elmo stabbed with multiple biscuit holes',
-    date: '2023-11-15 14:30',
-    status: 'Active',
-    author: 'Cookie Monster',
-    authorities: 'Police',
-    location: '125 Sesame Street'
-  },
-  { 
-            id: 2,
-            title: 'Kidnapping',
-            description: 'The vice president Joe Biden took my child',
-            date: '2023-11-14 09:15',
-            status: 'Investigating',
-            author: 'Obama',
-            authorities: 'Ambulance',
-            location: 'Area 51'
-          },
-          { 
-            id: 3,
-            title: 'Break In',
-            description: 'My biggest fan Kanye broke in the White House',
-            date: '2023-11-13 03:45',
-            status: 'Pending',
-            author: 'Donald .T Duck',
-            authorities: 'Fire Department',
-            location: 'White House, Washington D.C.'
-          }
-];
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
-app.get('/api/reports', (req, res) => {
-  res.json(reports);
+
+app.get(/(.*)/, (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
-app.patch('/api/reports/:id/status', (req, res) =>{
-  const {id} = req.params;
-  const {status} = req.body;
 
-  reports = reports.map(report =>
-    report.id === parseInt(id) ? {...report, status } : report
-  );
-
-  res.json({message: 'Status updated', report: reports.find(r => r.id === parseInt(id))} );
-});
-
-app.post('/api/reports/:id/archive', (req, res) => {
-  const { id } = req.params;
-  // In a real app, you'd move this to an archive collection
-  reports = reports.filter(report => report.id !== parseInt(id));
-  res.json({ message: 'Report archived' });
+app.listen(PORT, () => {
+  console.log(`🚀 Server running and ready at http://localhost:${PORT}`);
 });
