@@ -1,80 +1,99 @@
 <template>
-  <div class="container">
-    <div class="header">
-      <h1>🛡️ SafetyGuard</h1>
-      <p>Report an Incident - Help Keep Your Community Safe</p>
-    </div>
+  <div class="page-background">
+    <div class="container">
+      <div class="header">
+        <h1>🛡️ SafetyGuard</h1>
+        <p>Report an Incident - Help Keep Your Community Safe</p>
+      </div>
 
-    <div class="form-container">
-      <form @submit.prevent="submitForm">
-        <div class="form-group">
-          <label for="incidentType">Incident Type <span class="required">*</span></label>
-          <select v-model="form.incidentType" id="incidentType" required>
-            <option value="" disabled>Select incident type</option>
-            <option v-for="type in incidentTypes" :key="type" :value="type">{{ type }}</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="description">Description <span class="required">*</span></label>
-          <textarea id="description" v-model="form.description" required placeholder="Please provide detailed information..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="location">Location <span class="required">*</span></label>
-          <div class="location-group">
-            <input type="text" id="location" v-model="form.location" required placeholder="Enter location">
-            <button type="button" class="location-btn" @click="useCurrentLocation">📍</button>
+      <!-- Show the form only if it hasn't been successfully submitted -->
+      <div v-if="!success" class="form-container">
+        <form @submit.prevent="submitForm">
+          <!-- Incident Type -->
+          <div class="form-group">
+            <label for="incidentType">Incident Type <span class="required">*</span></label>
+            <select v-model="form.incidentType" id="incidentType" required>
+              <option value="" disabled>Select incident type</option>
+              <option v-for="type in incidentTypes" :key="type" :value="type">{{ type }}</option>
+            </select>
           </div>
-          <div class="location-status" v-if="locationUsed">✓ Using your current location</div>
-        </div>
 
-        <div class="form-group">
-          <label>Severity Level</label>
-          <div class="severity-options">
-            <div class="severity-option severity-low">
-              <input type="radio" id="low" value="low" v-model="form.severity">
-              <label for="low" class="severity-label">Low</label>
-            </div>
-            <div class="severity-option severity-medium">
-              <input type="radio" id="medium" value="medium" v-model="form.severity">
-              <label for="medium" class="severity-label">Medium</label>
-            </div>
-            <div class="severity-option severity-high">
-              <input type="radio" id="high" value="high" v-model="form.severity">
-              <label for="high" class="severity-label">High</label>
-            </div>
+          <!-- Description -->
+          <div class="form-group">
+            <label for="description">Description <span class="required">*</span></label>
+            <textarea id="description" v-model="form.description" required placeholder="Please provide detailed information..."></textarea>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="dateTime">Date & Time of Incident</label>
-          <input type="datetime-local" id="dateTime" v-model="form.dateTime">
-        </div>
+          <!-- Location -->
+          <div class="form-group">
+            <label for="location">Location <span class="required">*</span></label>
+            <div class="location-group">
+              <input type="text" id="location" v-model="form.location" required placeholder="Enter address or describe the location">
+              <button type="button" class="location-btn" @click="useCurrentLocation" title="Use my current location">📍</button>
+            </div>
+            <div class="location-status" v-if="locationUsed">✓ Using your current location</div>
+          </div>
 
-        <div class="checkbox-group">
-          <input type="checkbox" id="anonymous" v-model="form.anonymous">
-          <label for="anonymous">Submit anonymously</label>
-        </div>
+          <!-- Severity Level (with improved accessibility) -->
+          <div class="form-group">
+            <fieldset>
+              <legend class="label">Severity Level</legend>
+              <div class="severity-options">
+                <div class="severity-option severity-low">
+                  <input type="radio" id="low" value="low" v-model="form.severity">
+                  <label for="low" class="severity-label">Low</label>
+                </div>
+                <div class="severity-option severity-medium">
+                  <input type="radio" id="medium" value="medium" v-model="form.severity">
+                  <label for="medium" class="severity-label">Medium</label>
+                </div>
+                <div class="severity-option severity-high">
+                  <input type="radio" id="high" value="high" v-model="form.severity">
+                  <label for="high" class="severity-label">High</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
 
-        <div class="checkbox-group">
-          <input type="checkbox" id="followUp" v-model="form.followUp">
-          <label for="followUp">I would like to receive updates</label>
-        </div>
+          <!-- Date & Time -->
+          <div class="form-group">
+            <label for="dateTime">Date & Time of Incident</label>
+            <input type="datetime-local" id="dateTime" v-model="form.dateTime">
+          </div>
 
-        <div class="form-actions">
-          <button type="button" class="btn btn-secondary" @click="addPhoto">📷 Add Photo</button>
-          <button type="submit" class="btn btn-primary">Submit Report</button>
-        </div>
-      </form>
-    </div>
+          <!-- Anonymous Submission -->
+          <div class="checkbox-group">
+            <input type="checkbox" id="anonymous" v-model="form.anonymous">
+            <label for="anonymous">Submit anonymously</label>
+          </div>
 
-    <div v-if="success" class="success-message">
-      <div class="success-icon">✓</div>
-      <h2>Report Submitted Successfully!</h2>
-      <p>Your reference number is:</p>
-      <div class="report-id"><strong>{{ reportId }}</strong></div>
-      <button class="btn btn-primary" @click="resetForm">Submit Another Report</button>
+          <!-- Follow-up -->
+          <div class="checkbox-group">
+            <input type="checkbox" id="followUp" v-model="form.followUp">
+            <label for="followUp">I would like to receive updates</label>
+          </div>
+          
+          <!-- Hidden file input for photo uploads -->
+          <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" accept="image/*">
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" @click="triggerFileUpload">📷 Add Photo</button>
+            <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+              {{ isSubmitting ? 'Submitting...' : 'Submit Report' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Success Message -->
+      <div v-else class="success-message">
+        <div class="success-icon">✓</div>
+        <h2>Report Submitted Successfully!</h2>
+        <p>Your reference number is:</p>
+        <div class="report-id"><strong>{{ reportId }}</strong></div>
+        <button class="btn btn-primary" @click="resetForm">Submit Another Report</button>
+      </div>
     </div>
   </div>
 </template>
@@ -84,7 +103,11 @@ export default {
   name: "CrimeReportForm",
   data() {
     return {
-      incidentTypes: ["Theft", "Vandalism", "Assault", "Suspicious Activity", "Harassment", "Break-in", "Fraud", "Drug Activity", "Domestic Violence", "Other"],
+      incidentTypes: [
+        "Theft", "Vandalism", "Assault", "Suspicious Activity", 
+        "Harassment", "Break-in", "Fraud", "Drug Activity", 
+        "Domestic Violence", "Other"
+      ],
       form: {
         incidentType: '',
         description: '',
@@ -92,21 +115,53 @@ export default {
         severity: 'medium',
         dateTime: new Date().toISOString().slice(0, 16),
         anonymous: false,
-        followUp: true
+        followUp: true,
+        photo: null // To hold the selected file
       },
+      isSubmitting: false, // For loading state
       success: false,
       reportId: '',
       locationUsed: false
     };
   },
   methods: {
-    submitForm() {
-      this.reportId = 'SR' + Math.random().toString(36).substring(2, 10).toUpperCase();
-      console.log('Report Data:', this.form);
-      this.success = true;
+    async submitForm() {
+      this.isSubmitting = true;
+
+      // The API URL points to our backend server
+      const apiUrl = 'http://localhost:3000/api/reports';
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(this.form)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          const errorMessage = result.message || 'An unknown error occurred on the server.';
+          throw new Error(errorMessage);
+        }
+
+        this.reportId = result.reportId;
+        this.success = true;
+
+      } catch (error) {
+        console.error('Error submitting form:', error);
+        alert(`There was a problem submitting your report: ${error.message}`);
+      } finally {
+        this.isSubmitting = false;
+      }
     },
+
     resetForm() {
       this.success = false;
+      this.locationUsed = false;
+      this.isSubmitting = false;
       this.form = {
         incidentType: '',
         description: '',
@@ -114,23 +169,39 @@ export default {
         severity: 'medium',
         dateTime: new Date().toISOString().slice(0, 16),
         anonymous: false,
-        followUp: true
+        followUp: true,
+        photo: null
       };
     },
+
     useCurrentLocation() {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(pos => {
-          const lat = pos.coords.latitude.toFixed(6);
-          const lng = pos.coords.longitude.toFixed(6);
-          this.form.location = `Current Location (${lat}, ${lng})`;
-          this.locationUsed = true;
-        }, alert => {
-          alert("Location access denied or unavailable.");
-        });
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const lat = pos.coords.latitude.toFixed(6);
+            const lng = pos.coords.longitude.toFixed(6);
+            this.form.location = `Lat: ${lat}, Lng: ${lng}`;
+            this.locationUsed = true;
+          }, 
+          () => {
+            alert("Location access was denied. Please enable it in your browser settings to use this feature.");
+          }
+        );
+      } else {
+        alert("Geolocation is not supported by your browser.");
       }
     },
-    addPhoto() {
-      alert("Photo upload not implemented in this mockup.");
+
+    triggerFileUpload() {
+      this.$refs.fileInput.click();
+    },
+    
+    handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.form.photo = file;
+        alert(`File "${file.name}" has been selected. Note: File upload is not fully implemented in this version.`);
+      }
     }
   }
 };
@@ -138,6 +209,12 @@ export default {
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+.page-background {
+  padding: 40px 20px;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
 
 .container {
   max-width: 900px;
@@ -151,14 +228,8 @@ export default {
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .header {
@@ -173,27 +244,28 @@ export default {
 .header h1 {
   font-size: 2.5rem;
   font-weight: 700;
-  margin-bottom: 10px;
+  margin: 0 0 10px;
+}
+
+.header p {
+  margin: 0;
+  opacity: 0.9;
 }
 
 .form-group {
   margin-bottom: 25px;
 }
 
-label {
+label, .label {
   font-weight: 600;
   color: #374151;
   margin-bottom: 8px;
   display: block;
 }
 
-.required {
-  color: #ef4444;
-}
+.required { color: #ef4444; }
 
-input,
-select,
-textarea {
+input, select, textarea {
   width: 100%;
   padding: 12px;
   border: 2px solid #e5e7eb;
@@ -201,6 +273,14 @@ textarea {
   font-size: 1rem;
   background: #fafafa;
   transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #4f46e5;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
 }
 
 textarea {
@@ -217,24 +297,29 @@ textarea {
   background: #4f46e5;
   color: white;
   border: none;
-  padding: 12px;
+  padding: 0 15px;
   border-radius: 12px;
   cursor: pointer;
+  font-size: 1.5rem;
   transition: all 0.3s ease;
 }
 
-.location-btn:hover {
-  background: #4338ca;
+.location-btn:hover { background: #4338ca; }
+.location-status { margin-top: 8px; color: #10b981; font-weight: 600; font-size: 0.9rem; }
+
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
 }
 
 .severity-options {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
-.severity-option input[type="radio"] {
-  display: none;
-}
+.severity-option input[type="radio"] { display: none; }
 
 .severity-label {
   padding: 12px;
@@ -243,22 +328,23 @@ textarea {
   cursor: pointer;
   text-align: center;
   transition: all 0.3s ease;
+  display: block;
 }
 
 .severity-option input[type="radio"]:checked + .severity-label {
-  border-color: #4f46e5;
-  background: #4f46e5;
-  color: white;
+  font-weight: 700;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .severity-low .severity-label { border-color: #10b981; }
-.severity-low input[type="radio"]:checked + .severity-label { background: #10b981; border-color: #10b981; color: white; }
+.severity-low input[type="radio"]:checked + .severity-label { background: #10b981; border-color: #059669; color: white; }
 
 .severity-medium .severity-label { border-color: #f59e0b; }
-.severity-medium input[type="radio"]:checked + .severity-label { background: #f59e0b; border-color: #f59e0b; color: white; }
+.severity-medium input[type="radio"]:checked + .severity-label { background: #f59e0b; border-color: #d97706; color: white; }
 
 .severity-high .severity-label { border-color: #ef4444; }
-.severity-high input[type="radio"]:checked + .severity-label { background: #ef4444; border-color: #ef4444; color: white; }
+.severity-high input[type="radio"]:checked + .severity-label { background: #ef4444; border-color: #dc2626; color: white; }
 
 .checkbox-group {
   display: flex;
@@ -267,9 +353,16 @@ textarea {
   margin-top: 15px;
 }
 
+.checkbox-group input[type="checkbox"] {
+    width: 1.2em;
+    height: 1.2em;
+}
+
 .form-actions {
   margin-top: 30px;
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   gap: 10px;
 }
 
@@ -283,9 +376,20 @@ textarea {
   transition: all 0.3s ease;
 }
 
+.btn:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
 .btn-primary {
   background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   color: white;
+}
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .btn-secondary {
@@ -293,10 +397,14 @@ textarea {
   color: #374151;
   border: 2px solid #e5e7eb;
 }
+.btn-secondary:hover:not(:disabled) {
+    background-color: #e5e7eb;
+}
 
 .success-message {
   text-align: center;
   padding: 40px;
+  animation: slideUp 0.6s ease-out;
 }
 
 .success-icon {
@@ -308,7 +416,7 @@ textarea {
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 2rem;
+  font-size: 2.5rem;
   margin: 0 auto 20px;
 }
 
@@ -319,5 +427,7 @@ textarea {
   border-left: 4px solid #4f46e5;
   font-family: 'Courier New', monospace;
   margin-top: 15px;
+  margin-bottom: 30px;
+  display: inline-block;
 }
 </style>
