@@ -25,6 +25,7 @@ const routes = [
     {path : '/address', component: () => import('./pages/Address.vue')},
     {path : '/profile-picture', component: () => import('./pages/ProfilePicture.vue')},
     {path : '/admin-dashboard', component: AdminDashboard},
+    {path : '/user-report-summary', component: () => import('./pages/UserReportSummaryPage.vue')},
     {path : '/admin-emergency-contacts', component: AdminEmergencyContacts},
     {path : '/login', component: LoginView},
     {path : '/register', component: RegisterView},

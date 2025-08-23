@@ -152,6 +152,12 @@ export default {
     showInfo(contact) {
       alert(`${contact.name}\n\n${contact.description}`);
     }
+  },
+  mounted() {
+    if (!localStorage.getItem('isLoggedIn')) {
+      this.$router.push('/login');
+      return;
+    }
   }
 };
 </script>

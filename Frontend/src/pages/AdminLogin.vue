@@ -5,105 +5,191 @@
     <div class="login-container">
       <h2>Welcome</h2>
       <img src="@/assets/images/logo.png" alt="Admin" class="admin-image" />
-      <AdminLoginComp />
+      
+      <form @submit.prevent="handleLogin" class="login-form">
+        <div class="form-group">
+          <label for="username">Username:</label>
+          <input type="text" id="username" v-model="form.username" required aria-label="Username">
+        </div>
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input type="password" id="password" v-model="form.password" required aria-label="Password">
+        </div>
+        <p class="forgot-password"><a href="#">Forgot Password?</a></p>
+        <div class="button-container">
+          <button type="submit" :disabled="isLoading">{{ isLoading ? 'Logging in...' : 'Login' }}</button>
+        </div>
+        <p v-if="loginError" class="error">{{ loginError }}</p>
+      </form>
     </div>
   </div>
 </template>
 
 
 <script>
-import AdminLoginComp from '../components/AdminLogincomp.vue';
 import axios from 'axios';
 
 export default {
   name: 'AdminLogin',
-  components: {
-    AdminLoginComp,
-  },
   data() {
     return {
       form: {
         username: '',
         password: ''
       },
-      loginError: ''
+      loginError: '',
+      isLoading: false
     };
   },
   methods: {
     async handleLogin() {
       this.loginError = '';
+      this.isLoading = true;
       console.log(`Attempting login for ${this.form.username}...`);
 
       try {
         const res = await axios.post('http://localhost:3000/admin-login', this.form);
         console.log('Success', res.data.message || 'Login successful!');
+        localStorage.setItem('isLoggedIn', 'true');
         this.$router.push('/admin-dashboard');
       } catch (err) {
         this.loginError = err.response?.data?.error || 'Something went wrong.';
         console.log('Error:', this.loginError);
+      } finally {
+        this.isLoading = false;
       }
     }
   }
 };
 </script>
 
-
 <style scoped>
+/* Background */
 .login-page {
-  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  overflow: hidden;
+  background: linear-gradient(135deg, #ff4b4b, #00c853, #2979ff);
+  background-size: 300% 300%;
+  animation: gradientBG 10s ease infinite;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.login-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-image: url('@/assets/images/Background.jpg');
-  background-size: cover;
-  background-position: center;
-  filter: blur(8px);
-  z-index: -1;
+/* Gradient animation */
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
+/* Container */
 .login-container {
-  position: relative;
-  max-width: 400px;
-  width: 90%;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 5px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  background: #ffffff;
+  padding: 2rem 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+
+/* Title */
+.login-container h2 {
+  margin-bottom: 1rem;
+  color: #2979ff;
+  font-weight: 700;
+  font-size: 1.8rem;
+}
+
+/* Logo */
+.admin-image {
+  width: 80px;
+  margin-bottom: 1rem;
+  border-radius: 50%;
+  border: 3px solid #00c853;
+}
+
+/* Form */
+.login-form {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  z-index: 1;
+  gap: 1rem;
 }
 
-.admin-image {
-  width: 150px;
-  height: auto;
-  max-width: 100%;
-  margin-bottom: 20px;
-  object-fit: contain;
+/* Labels */
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.3rem;
+  text-align: left;
 }
 
-@media (max-width: 600px) {
-  .login-container {
-    padding: 15px;
-    min-height: 300px;
-  }
-
-  .admin-image {
-    width: 100px;
-  }
+/* Inputs */
+.form-group input {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
 }
 
+.form-group input:focus {
+  border-color: #2979ff;
+  outline: none;
+  box-shadow: 0 0 6px rgba(41,121,255,0.3);
+}
+
+/* Forgot Password */
+.forgot-password {
+  text-align: right;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.forgot-password a {
+  font-size: 0.9rem;
+  color: #ff4b4b;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
+}
+
+/* Button */
+.button-container button {
+  width: 100%;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(45deg, #2979ff, #00c853);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button-container button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.button-container button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+
+/* Error message */
+.error {
+  color: #ff4b4b;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
 </style>
+

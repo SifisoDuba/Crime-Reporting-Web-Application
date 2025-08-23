@@ -21,15 +21,18 @@
           <!-- Description -->
           <div class="form-group">
             <label for="description">Description <span class="required">*</span></label>
-            <textarea id="description" v-model="form.description" required placeholder="Please provide detailed information..."></textarea>
+            <textarea id="description" v-model="form.description" required
+              placeholder="Please provide detailed information..."></textarea>
           </div>
 
           <!-- Location -->
           <div class="form-group">
             <label for="location">Location <span class="required">*</span></label>
             <div class="location-group">
-              <input type="text" id="location" v-model="form.location" required placeholder="Enter address or describe the location">
-              <button type="button" class="location-btn" @click="useCurrentLocation" title="Use my current location">📍</button>
+              <input type="text" id="location" v-model="form.location" required
+                placeholder="Enter address or describe the location">
+              <button type="button" class="location-btn" @click="useCurrentLocation"
+                title="Use my current location">📍</button>
             </div>
             <div class="location-status" v-if="locationUsed">✓ Using your current location</div>
           </div>
@@ -55,6 +58,26 @@
             </fieldset>
           </div>
 
+          <div class="form-group">
+            <fieldset>
+              <legend class="label">Required Response Time</legend>
+              <div class="response-options">
+                <div class="response-option response-now">
+                  <input type="radio" id="response-now" value="now" v-model="form.responseTime">
+                  <label for="response-now" class="response-label">Now</label>
+                </div>
+                <div class="response-option response-later">
+                  <input type="radio" id="response-later" value="later" v-model="form.responseTime">
+                  <label for="response-later" class="response-label">Later</label>
+                </div>
+                <div class="response-option response-emergency">
+                  <input type="radio" id="response-emergency" value="emergency" v-model="form.responseTime">
+                  <label for="response-emergency" class="response-label">Emergency</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
           <!-- Date & Time -->
           <div class="form-group">
             <label for="dateTime">Date & Time of Incident</label>
@@ -72,7 +95,7 @@
             <input type="checkbox" id="followUp" v-model="form.followUp">
             <label for="followUp">I would like to receive updates</label>
           </div>
-          
+
           <!-- Hidden file input for photo uploads -->
           <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none;" accept="image/*">
 
@@ -99,24 +122,26 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   name: "CrimeReportForm",
   data() {
     return {
       incidentTypes: [
-        "Theft", "Vandalism", "Assault", "Suspicious Activity", 
-        "Harassment", "Break-in", "Fraud", "Drug Activity", 
+        "Theft", "Vandalism", "Assault", "Suspicious Activity",
+        "Harassment", "Break-in", "Fraud", "Drug Activity",
         "Domestic Violence", "Other"
       ],
       form: {
         incidentType: '',
         description: '',
         location: '',
-        severity: 'medium',
+        severity: '',
+        responseTime: '',
         dateTime: new Date().toISOString().slice(0, 16),
         anonymous: false,
         followUp: true,
-        photo: null // To hold the selected file
+        
       },
       isSubmitting: false, // For loading state
       success: false,
@@ -128,35 +153,52 @@ export default {
     async submitForm() {
       this.isSubmitting = true;
 
-      // The API URL points to our backend server
-      const apiUrl = 'http://localhost:3000/api/reports';
+      if (
+        !this.form.incidentType ||
+        !this.form.description ||
+        !this.form.location ||
+        !this.form.severity ||
+        !this.form.responseTime
+      ) {
+        alert('Please fill all required fields.');
+        this.isSubmitting = false; // 🔹 Make sure we reset state
+        return;
+      }
+
+      console.log('Submitting form:', this.form);
 
       try {
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(this.form)
-        });
+        // Get user email from localStorage or use default for testing
+        const userEmail = localStorage.getItem('userEmail') || 'test@gmail.com';
+        
+        // Include user email in the report data
+        const reportData = {
+          ...this.form,
+          userEmail: userEmail
+        };
 
-        const result = await response.json();
-
-        if (!response.ok) {
-          const errorMessage = result.message || 'An unknown error occurred on the server.';
-          throw new Error(errorMessage);
-        }
-
-        this.reportId = result.reportId;
-        this.success = true;
-
+        const res = await axios.post('http://localhost:3000/report', reportData);
+        console.log("Success:", res.data);
+        this.resetForm();
       } catch (error) {
-        console.error('Error submitting form:', error);
-        alert(`There was a problem submitting your report: ${error.message}`);
+        if (error.response) {
+          // Server responded with error status
+          console.error("Server Error:", error.response.data);
+          alert(`Server Error (${error.response.status}): ${error.response.data.message || 'Something went wrong.'}`);
+        } else if (error.request) {
+          // Request made, but no response
+          console.error("No Response:", error.request);
+          alert("No response from server. Please check your connection or try again later.");
+        } else {
+          // Something else
+          console.error("Request Error:", error.message);
+          alert(`Error: ${error.message}`);
+        }
       } finally {
         this.isSubmitting = false;
       }
     },
+
 
     resetForm() {
       this.success = false;
@@ -166,7 +208,8 @@ export default {
         incidentType: '',
         description: '',
         location: '',
-        severity: 'medium',
+        severity: '',
+        responseTime: '',
         dateTime: new Date().toISOString().slice(0, 16),
         anonymous: false,
         followUp: true,
@@ -182,7 +225,7 @@ export default {
             const lng = pos.coords.longitude.toFixed(6);
             this.form.location = `Lat: ${lat}, Lng: ${lng}`;
             this.locationUsed = true;
-          }, 
+          },
           () => {
             alert("Location access was denied. Please enable it in your browser settings to use this feature.");
           }
@@ -195,7 +238,7 @@ export default {
     triggerFileUpload() {
       this.$refs.fileInput.click();
     },
-    
+
     handleFileUpload(event) {
       const file = event.target.files[0];
       if (file) {
@@ -228,8 +271,15 @@ export default {
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .header {
@@ -256,16 +306,21 @@ export default {
   margin-bottom: 25px;
 }
 
-label, .label {
+label,
+.label {
   font-weight: 600;
   color: #374151;
   margin-bottom: 8px;
   display: block;
 }
 
-.required { color: #ef4444; }
+.required {
+  color: #ef4444;
+}
 
-input, select, textarea {
+input,
+select,
+textarea {
   width: 100%;
   padding: 12px;
   border: 2px solid #e5e7eb;
@@ -276,7 +331,9 @@ input, select, textarea {
   box-sizing: border-box;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   outline: none;
   border-color: #4f46e5;
   background: #fff;
@@ -304,8 +361,16 @@ textarea {
   transition: all 0.3s ease;
 }
 
-.location-btn:hover { background: #4338ca; }
-.location-status { margin-top: 8px; color: #10b981; font-weight: 600; font-size: 0.9rem; }
+.location-btn:hover {
+  background: #4338ca;
+}
+
+.location-status {
+  margin-top: 8px;
+  color: #10b981;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
 
 fieldset {
   border: none;
@@ -319,7 +384,19 @@ fieldset {
   gap: 10px;
 }
 
-.severity-option input[type="radio"] { display: none; }
+.response-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.severity-option input[type="radio"] {
+  display: none;
+}
+
+.response-option input[type="radio"] {
+  display: none;
+}
 
 .severity-label {
   padding: 12px;
@@ -331,20 +408,88 @@ fieldset {
   display: block;
 }
 
-.severity-option input[type="radio"]:checked + .severity-label {
+.response-label {
+  padding: 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease;
+  display: block;
+}
+
+.severity-option input[type="radio"]:checked+.severity-label {
   font-weight: 700;
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-.severity-low .severity-label { border-color: #10b981; }
-.severity-low input[type="radio"]:checked + .severity-label { background: #10b981; border-color: #059669; color: white; }
+.response-option input[type="radio"]:checked+.severity-label {
+  font-weight: 700;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
 
-.severity-medium .severity-label { border-color: #f59e0b; }
-.severity-medium input[type="radio"]:checked + .severity-label { background: #f59e0b; border-color: #d97706; color: white; }
+.severity-low .severity-label {
+  border-color: #10b981;
+}
 
-.severity-high .severity-label { border-color: #ef4444; }
-.severity-high input[type="radio"]:checked + .severity-label { background: #ef4444; border-color: #dc2626; color: white; }
+.severity-low input[type="radio"]:checked+.severity-label {
+  background: #10b981;
+  border-color: #059669;
+  color: white;
+}
+
+.severity-medium .severity-label {
+  border-color: #f59e0b;
+}
+
+.severity-medium input[type="radio"]:checked+.severity-label {
+  background: #f59e0b;
+  border-color: #d97706;
+  color: white;
+}
+
+.severity-high .severity-label {
+  border-color: #ef4444;
+}
+
+.severity-high input[type="radio"]:checked+.severity-label {
+  background: #ef4444;
+  border-color: #dc2626;
+  color: white;
+}
+
+
+.response-now .response-label {
+  border-color: #10b981;
+}
+
+.response-now input[type="radio"]:checked+.response-label {
+  background: #10b981;
+  border-color: #059669;
+  color: white;
+}
+
+.response-later .response-label {
+  border-color: #f59e0b;
+}
+
+.response-later input[type="radio"]:checked+.response-label {
+  background: #f59e0b;
+  border-color: #d97706;
+  color: white;
+}
+
+.response-emergency .response-label {
+  border-color: #ef4444;
+}
+
+.response-emergency input[type="radio"]:checked+.response-label {
+  background: #ef4444;
+  border-color: #dc2626;
+  color: white;
+}
 
 .checkbox-group {
   display: flex;
@@ -354,8 +499,8 @@ fieldset {
 }
 
 .checkbox-group input[type="checkbox"] {
-    width: 1.2em;
-    height: 1.2em;
+  width: 1.2em;
+  height: 1.2em;
 }
 
 .form-actions {
@@ -377,19 +522,20 @@ fieldset {
 }
 
 .btn:disabled {
-    background: #9ca3af;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .btn-primary {
   background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   color: white;
 }
+
 .btn-primary:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .btn-secondary {
@@ -397,8 +543,9 @@ fieldset {
   color: #374151;
   border: 2px solid #e5e7eb;
 }
+
 .btn-secondary:hover:not(:disabled) {
-    background-color: #e5e7eb;
+  background-color: #e5e7eb;
 }
 
 .success-message {

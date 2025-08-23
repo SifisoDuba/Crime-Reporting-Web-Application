@@ -100,6 +100,12 @@ export default {
       this.timestamp = '';
       this.showModal = false;
     }
+  },
+  mounted() {
+    if (!localStorage.getItem('isLoggedIn')) {
+      this.$router.push('/login');
+      return;
+    }
   }
 };
 </script>

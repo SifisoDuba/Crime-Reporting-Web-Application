@@ -12,7 +12,7 @@
       <li><router-link to="/dashboard" exact @click="closeMenu">Dashboard</router-link></li>
       <li><router-link to="/reportingpage" @click="closeMenu">Report crime</router-link></li>
       <li><router-link to="/emergency-contacts" @click="closeMenu">Emergency contacts</router-link></li>
-      <li><router-link to="/reportsummary" @click="closeMenu">About us</router-link></li>
+      <li><router-link to="/user-report-summary" @click="closeMenu">My Reports</router-link></li>
       </div>
       <div class="nav-right">
 <li class="profile-menu" @click="toggleProfileDropdown" @mouseleave="closeProfileDropdown">

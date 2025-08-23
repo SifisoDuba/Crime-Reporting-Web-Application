@@ -4,23 +4,23 @@
     <form @submit.prevent="handleSubmit">
       <label>
         Full Name:
-        <input type="text" v-model="name" />
+        <input type="text" v-model="form.name" placeholder="Name" />
       </label>
-            <label>
+      <label>
         Email Address:
-        <input type="text" v-model="name" />
+        <input type="email" v-model="form.email" placeholder="Email" />
       </label>
-            <label>
+      <label>
         Phone Number:
-        <input type="text" v-model="name" />
+        <input type="text" v-model="form.number" placeholder="number" />
       </label>
-            <label>
+      <label>
         password:
-        <input type="text" v-model="name" />
+        <input type="password" v-model="form.password" placeholder="Password" />
       </label>
       <label>
         Comfirm Password:
-        <input type="text" v-model="surname" />
+        <input type="password" v-model="form.confirmPassword" placeholder="Confirm Password" />
       </label>
       <button type="submit">Save</button>
     </form>
@@ -36,22 +36,38 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   name: "PersonalDetails",
   data() {
     return {
-      name: "John",
-      surname: "Wick",
-      age: 30,
-      status: "Resident",
+      form: {
+        name: "John",
+        email: "John@gmail.com",
+        number: "0712345678",
+        password: "password123",
+        confirmPassword: "password123",
+      },
       selectedFile: null,
-      previewUrl: null,
     };
   },
   methods: {
-    handleSubmit() {
-      alert("Personal details updated!");
+    async handleSubmit() {
+      console.log("submitting form with data:", this.form);
+      try {
+        const res = await axios.post('http://localhost:3000/update-personal-details', this.form);
+        console.log("Personal details updated successfully:", res.data);
+        alert(res.data.message); // use server message
+      } catch (error) {
+        if (error.response && error.response.data.error) {
+          alert("Error: " + error.response.data.error); // show server-side validation errors
+        } else {
+          alert("Something went wrong. Please try again.");
+        }
+        console.error("Error updating personal details:", error);
+      }
     },
+
     handleFileChange(event) {
       const file = event.target.files[0];
       if (file) {
@@ -76,11 +92,13 @@ export default {
   background: white;
   border-radius: 8px;
 }
+
 .personal-details label {
   display: block;
   margin-bottom: 10px;
   font-weight: 600;
 }
+
 .personal-details input {
   width: 100%;
   padding: 8px;
@@ -88,6 +106,7 @@ export default {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+
 .personal-details button {
   background-color: #10b981;
   color: white;
@@ -97,42 +116,52 @@ export default {
   cursor: pointer;
   font-weight: 600;
 }
+
 .profile-picture-section {
   margin-top: 40px;
   text-align: center;
 }
+
 .picture-preview img {
   max-width: 200px;
   max-height: 200px;
   border-radius: 50%;
   margin-bottom: 10px;
 }
+
 input[type="file"] {
   margin-bottom: 10px;
 }
+
 button:disabled {
   background-color: #9ca3af;
   cursor: not-allowed;
 }
+
 @media (max-width: 768px) {
   .personal-details {
     padding: 15px;
     margin: 10px;
   }
+
   .personal-details label {
     font-size: 1rem;
   }
+
   .personal-details input {
     padding: 10px;
   }
+
   .personal-details button {
     width: 100%;
     padding: 12px 0;
   }
+
   .picture-preview img {
     max-width: 150px;
     max-height: 150px;
   }
+
   button {
     width: 100%;
     padding: 12px 0;

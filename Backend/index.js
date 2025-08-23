@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const jwt = require('jsonwebtoken'); 
+const db = require('./database'); // Ensure this path is correct
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,33 +15,24 @@ app.use(cors({
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
   credentials: true
 }));
+
 app.use(express.json()); 
+
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+
+app.get(/(.*)/, (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+});
+
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running and ready at http://localhost:${PORT}`);
+});
 
 
 // REGISTER REQUEST
-app.post('/register', (req, res) => {
-  const { fullName, idNumber, email, password, confirmPassword, phone, address, city, houseNumber, province } = req.body;
-  console.log('Received registration data:', req.body);
-
-  const errors = [];
-
-  if (!fullName || !idNumber || !email || !password || !confirmPassword || !phone || !address || !city || !houseNumber || !province) {
-    errors.push('Please fill in all required fields.');
-  }
-  if (password !== confirmPassword) {
-    errors.push('Password and Confirm Password do not match.');
-  }
- 
-  
-  if (errors.length > 0) {
-    return res.status(400).json({ errors });
-  }
-
-  return res.status(201).json({
-    message: 'Registration successful! ',
-    user: { fullName, email }
-  });
-});
+let reports = [];
 
 // LOGIN REQUEST
 app.post('/login', (req, res) => {
@@ -51,52 +43,105 @@ app.post('/login', (req, res) => {
     return res.status(400).json({ errors: ['Please fill in both fields.'] });
   }
 
- 
   const validUser = {
     email: "test@gmail.com",
     password: "password123"
   };
 
   if (email === validUser.email && password === validUser.password) {
-    return res.status(200).json({ message: 'Login successful! ' });
+    // Generate JWT token for user
+    const token = jwt.sign(
+      { email, role: 'user' },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+    return res.status(200).json({ 
+      message: 'Login successful!',
+      token,
+      user: { email }
+    });
   } else {
     return res.status(401).json({ errors: ['Invalid email or password.'] });
   }
 });
 
+// REPORT SUBMISSION WITH USER INFO
+app.post('/report', (req, res) => {
+  try {
+    const { incidentType, description, location, severity, dateTime, anonymous, followUp, responseTime, userEmail } = req.body;
+    console.log('Received new report data:', req.body);
 
-let reports = [
-  { id: 1, incidentType: 'Theft', description: 'Cookie jar was stolen from the kitchen.', location: '123 Sesame Street', severity: 'High', dateTime: '2025-08-14T10:00', anonymous: false, followUp: true },
-  { id: 2, incidentType: 'Vandalism', description: 'Graffiti on the park bench.', location: 'Central Park', severity: 'Medium', dateTime: '2025-08-13T22:15', anonymous: true, followUp: false },
-];
+    if (!incidentType || !description || !location || !dateTime || !severity || !responseTime) {
+      return res.status(400).json({ message: 'Please fill in all required fields.' });
+    }
+
+    const newId = reports.length > 0 ? Math.max(...reports.map(r => r.id)) + 1 : 1;
+    const newReport = {
+      id: newId,
+      incidentType,
+      description,
+      location,
+      severity,
+      dateTime,
+      anonymous,
+      followUp,
+      responseTime,
+      userEmail: userEmail || 'anonymous',
+      status: 'Pending',
+      createdAt: new Date().toISOString()
+    };
+    reports.push(newReport);
+
+    res.status(201).json({
+      message: 'Report submitted successfully!',
+      reportId: `RPT-${newId}-${Date.now()}`
+    });
+  } catch (err) {
+    console.error("Server crash in /report:", err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 
 
-app.post('/api/reports', (req, res) => {
-  console.log('Received new report data:', req.body);
-  const { incidentType, description, location, severity, dateTime, anonymous, followUp } = req.body;
+app.post('/update-personal-details', (req, res) => {
+  const { name, email, number, password, confirmPassword } = req.body;
+  console.log('Received personal details update:', req.body);
 
-  // Basic validation
-  if (!incidentType || !description || !location) {
-    return res.status(400).json({ message: 'Missing required fields: incidentType, description, and location are required.' });
+  if (password !== confirmPassword) {
+    return res.status(400).json({ error: 'Passwords do not match.' });
   }
 
-  const newId = reports.length > 0 ? Math.max(...reports.map(r => r.id)) + 1 : 1;
-  const newReport = {
-    id: newId,
-    incidentType,
-    description,
-    location,
-    severity,
-    dateTime,
-    anonymous,
-    followUp
-  };
-  reports.push(newReport);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ error: 'Invalid email format.' });
+    }
 
+  if (!/^0\d{9}$/.test(number)) {
+      return res.status(400).json({ error: 'Phone number must be 10 digits.' });
+    }
 
   res.status(201).json({
-    message: 'Report submitted successfully!',
-    reportId: `RPT-${newId}-${Date.now()}`
+    message: 'Personal details updated successfully!',
+    user: {
+      name,
+      email,
+      number
+    }
+  });
+});
+
+
+app.post('/address', (req, res) => {  
+  const { street, city, house, postalCode } = req.body;
+  console.log('Received address data:', req.body);
+
+  res.status(201).json({
+    message: 'Address updated successfully!',
+    address: {
+      street,
+      city,
+      house,
+      postalCode
+    }
   });
 });
 
@@ -104,6 +149,18 @@ app.post('/api/reports', (req, res) => {
 // GET ALL REPORTS
 app.get('/api/reports', (req, res) => {
   res.json(reports);
+});
+
+// GET USER-SPECIFIC REPORTS
+app.get('/api/user-reports', (req, res) => {
+  const { email } = req.query;
+  
+  if (!email) {
+    return res.status(400).json({ message: 'Email parameter is required' });
+  }
+  
+  const userReports = reports.filter(report => report.userEmail === email);
+  res.json(userReports);
 });
 
 // UPDATE REPORT STATUS
@@ -186,14 +243,3 @@ app.post('/admin-login', (req, res) => {
   res.json({ token });
 });
 
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
-
-app.get(/(.*)/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-});
-
-
-app.listen(PORT, () => {
-  console.log(`🚀 Server running and ready at http://localhost:${PORT}`);
-});

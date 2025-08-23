@@ -1,5 +1,5 @@
 <template>
-<nav class="Navbar">
+<nav class="navbar">
   <div class="nav-left">
     <router-link to="/" exact>
       <img src="@/assets/images/logo.png" alt="Logo" width="65" height="65" />
@@ -13,11 +13,11 @@
         <li><router-link to="/admin-view-report">View Reports</router-link></li>
         <li><router-link to="/report-summary">Report Summary</router-link></li>
         <li><router-link to="/admin-emergency-contacts">Emergency contacts</router-link></li>
-        <li><router-link to="/abo">About us</router-link></li>
+        <li><router-link to="/about">About us</router-link></li>
     </div>
    <div class="nav-right">
-<li>
-  <router-link to="/profile">
+<li class="profile-menu" @click="toggleProfileDropdown" @mouseleave="closeProfileDropdown">
+  <div class="profile-link">
     <span v-if="isMenuOpen && isMobile">Profile</span>
     <img
       v-else
@@ -26,12 +26,16 @@
       width="35"
       height="35"
     />
-  </router-link>
+  </div>
+  <ul v-if="isProfileDropdownOpen && !isMobile" class="profile-dropdown">
+    <li><a href="#" class="logout-link" @click.prevent="handleLogout">Logout</a></li>
+  </ul>
 </li>
       </div>
     </ul>
   </nav>
 </template>
+
 <script>
 export default {
   name: 'AdminNavbar',
@@ -39,14 +43,35 @@ export default {
     return {
       isMenuOpen: false,
       isMobile: window.innerWidth <= 768,
+      isProfileDropdownOpen: false,
     };
   },
   methods: {
     toggleMenu() {
       this.isMenuOpen = !this.isMenuOpen;
     },
+    closeMenu() {
+      if (this.isMobile) {
+        this.isMenuOpen = false;
+      }
+    },
+    toggleProfileDropdown() {
+      if (!this.isMobile) {
+        this.isProfileDropdownOpen = !this.isProfileDropdownOpen;
+      }
+    },
+    closeProfileDropdown() {
+      this.isProfileDropdownOpen = false;
+    },
     handleResize() {
       this.isMobile = window.innerWidth <= 768;
+      if (this.isMobile) {
+        this.isProfileDropdownOpen = false;
+      }
+    },
+    handleLogout() {
+      localStorage.removeItem("isLoggedIn");
+      this.$router.push("/login");
     }
   },
   mounted() {
@@ -57,4 +82,5 @@ export default {
   }
 };
 </script>
+
 <style src="@/assets/styles/Navbar.css"></style>

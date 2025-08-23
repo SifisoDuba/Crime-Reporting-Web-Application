@@ -95,7 +95,7 @@ export default {
       }
     },
     async mounted() {
-    if (!localStorage.getItem('authToken')) {
+    if (!localStorage.getItem('isLoggedIn')) {
       this.$router.push('/login');
       return;
     }

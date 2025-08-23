@@ -1,4 +1,4 @@
-<!-- AdminLoginComp.vue -->
+
 <template>
   <form @submit.prevent="handleLogin" class="login-form">
     <div class="form-group">
@@ -26,10 +26,6 @@ export default {
       type: Object,
       required: true
     },
-    loginError: {
-      type: String,
-      default: ''
-    }
   },
   methods: {
     onSubmit() {
