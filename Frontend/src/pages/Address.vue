@@ -4,19 +4,19 @@
     <form @submit.prevent="handleSubmit">
       <label>
         Street Address:
-        <input type="text" v-model="line1" />
+        <input type="text" v-model="form.street" placeholder="Street Address" />
       </label>
       <label>
         City/Town:
-        <input type="text" v-model="line2" />
+        <input type="text" v-model="form.city" placeholder="City/Town" />
       </label>
       <label>
         House Number:
-        <input type="text" v-model="city" />
+        <input type="text" v-model="form.house" placeholder="House Number" />
       </label>
       <label>
         Postal Code:
-        <input type="text" v-model="postalCode" />
+        <input type="text" v-model="form.postalCode" placeholder="Postal Code" />
       </label>
       <button type="submit">Save</button>
     </form>
@@ -24,19 +24,30 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   name: "AppAddress",
   data() {
     return {
-      line1: "12 Lower Level Road",
-      line2: "",
-      city: "Cape Town",
-      postalCode: "8000",
+      form: {
+        street: "12 Lower Level Road",
+        house: "759",
+        city: "Cape Town",
+        postalCode: "8000",
+      },
     };
   },
   methods: {
-    handleSubmit() {
-      alert("Address updated!");
+    async handleSubmit() {
+      console.log("Submitting address:", this.form);
+      try {
+        const res = await axios.post('http://localhost:3000/address', this.form);
+        console.log("Address updated successfully:", res.data);
+        alert(res.data.message); 
+      } catch (error) {
+        console.error("Error updating address:", error);
+        alert("Failed to update address. Please try again.");
+      }
     },
   },
 };
@@ -50,11 +61,13 @@ export default {
   background: white;
   border-radius: 8px;
 }
+
 .address label {
   display: block;
   margin-bottom: 10px;
   font-weight: 600;
 }
+
 .address input {
   width: 100%;
   padding: 8px;
@@ -62,6 +75,7 @@ export default {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+
 .address button {
   background-color: #10b981;
   color: white;
@@ -71,17 +85,21 @@ export default {
   cursor: pointer;
   font-weight: 600;
 }
+
 @media (max-width: 768px) {
   .address {
     padding: 15px;
     margin: 10px;
   }
+
   .address label {
     font-size: 1rem;
   }
+
   .address input {
     padding: 10px;
   }
+
   .address button {
     width: 100%;
     padding: 12px 0;

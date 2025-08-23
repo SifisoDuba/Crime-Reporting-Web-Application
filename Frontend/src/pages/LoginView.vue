@@ -65,31 +65,29 @@ export default {
         return;
       }
 
-      const validUser = {
-        email: "test@gmail.com",
-        password: "password123"
-      };
-
       console.log("Attempting login with:", this.email, this.password);
 
       try {
-        const res = await axios.post('http://localhost:3000/login', this.form);
-        console.log('Success', res.data.message || 'Registration successful!');
-        this.$router.push('/login');
-
+        const res = await axios.post('http://localhost:3000/login', {
+          email: this.email,
+          password: this.password
+        });
+        
+        console.log('Login successful:', res.data);
+        
+        // Store login status and user email
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userEmail', this.email);
+        
+        this.$router.push('/dashboard');
+        
       } catch (err) {
         console.error('Login error:', err);
-        if (err.response && err.response.data && err.response.data.message) {
-          this.loginError = err.response.data.message;
+        if (err.response && err.response.data && err.response.data.errors) {
+          this.loginError = err.response.data.errors[0];
         } else {
           this.loginError = 'Something went wrong. Please try again.';
         }
-      }
-      if (this.email === validUser.email && this.password === validUser.password) {
-        localStorage.setItem('isLoggedIn', 'true');
-        this.$router.push('/dashboard');
-      } else {
-        this.loginError = "Invalid email or password. Please try again.";
       }
     }
   }

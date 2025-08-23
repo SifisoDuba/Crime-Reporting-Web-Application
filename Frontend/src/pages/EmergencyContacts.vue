@@ -82,7 +82,7 @@ export default {
             {
               id: '1',
               name: 'Emergency Hotline',
-              number: '911',
+              number: '112',
               description: 'Available 24/7 for life-threatening situations.',
               icon: '🚨',
               iconClass: 'emergency',
@@ -122,6 +122,7 @@ export default {
         }
       ]
     };
+      
   },
   computed: {
     filteredCategories() {
