@@ -1,0 +1,3 @@
+- [x] Import Background.jpg in LoginView.vue script and update template
+- [x] Import Background.jpg in RegisterView.vue script and update template
+- [ ] Test the changes by running the frontend
