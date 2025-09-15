@@ -2,7 +2,7 @@
   <div class="login-page">
     <!-- Left Side: Image -->
     <div class="login-image-section">
-      <img src="@/assets/images/Background.jpg" alt="Login Visual" />
+      <img :src="backgroundImage" alt="Login Visual" />
     </div>
 
     <!-- Right Side: Login Form -->
@@ -43,13 +43,16 @@
 
 <script>
 import axios from 'axios';
+import backgroundImage from '@/assets/images/Background.jpg';
+
 export default {
   name: 'LoginView',
   data() {
     return {
       email: '',
       password: '',
-      loginError: ''
+      loginError: '',
+      backgroundImage
     }
   },
   mounted() {

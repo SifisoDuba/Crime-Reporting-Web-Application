@@ -50,13 +50,14 @@
       </div>
     </div>
     <div class="image-section">
-      <img src="@/assets/images/Background.jpg" alt="Register Visual" />
+      <img :src="backgroundImage" alt="Register Visual" />
     </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import backgroundImage from '@/assets/images/Background.jpg';
 
 export default {
   name: 'RegisterView',
@@ -64,6 +65,7 @@ export default {
     return {
       step: 1,
       registerError: '',
+      backgroundImage,
       form: {
         fullName: '',
         idNumber: '',
