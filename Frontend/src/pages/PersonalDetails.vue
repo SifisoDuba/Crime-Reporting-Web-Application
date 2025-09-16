@@ -22,6 +22,10 @@
         Comfirm Password:
         <input type="password" v-model="form.confirmPassword" placeholder="Confirm Password" />
       </label>
+      <label>
+        ID Number:
+        <input type="text" v-model="form.idNumber" placeholder="ID Number" readonly />
+      </label>
       <button type="submit">Save</button>
     </form>
     <div class="profile-picture-section">
@@ -42,32 +46,59 @@ export default {
   data() {
     return {
       form: {
-        name: "John",
-        email: "John@gmail.com",
-        number: "0712345678",
-        password: "password123",
-        confirmPassword: "password123",
+        name: "",
+        email: "",
+        number: "",
+        password: "",
+        confirmPassword: "",
+        idNumber: "",
       },
       selectedFile: null,
     };
   },
+  mounted() {
+    console.log('PersonalDetails mounted');
+    this.form.idNumber = localStorage.getItem('idNumber') || '';
+    console.log('idNumber from localStorage:', this.form.idNumber);
+    if (this.form.idNumber) {
+      this.fetchUserDetails(this.form.idNumber);
+    } else {
+      console.log('No idNumber found, not fetching user details');
+    }
+  },
   methods: {
+    async fetchUserDetails(idNumber) {
+      console.log('Fetching user details for idNumber:', idNumber);
+      try {
+        const response = await axios.get(`http://localhost:3000/user/${idNumber}`);
+        console.log('Response from API:', response.data);
+        const user = response.data;
+        this.form.name = user.FullName || '';
+        this.form.email = user.Email || '';
+        this.form.number = user.PhoneNumber || '';
+        this.form.password = user.Password || '';
+        this.form.confirmPassword = user.Password || '';
+        console.log('Form updated with user data:', this.form);
+      } catch (error) {
+        console.error('Failed to fetch user details:', error);
+        alert("Failed to load personal details.");
+      }
+    },
     async handleSubmit() {
       console.log("submitting form with data:", this.form);
       try {
         const res = await axios.post('http://localhost:3000/update-personal-details', this.form);
         console.log("Personal details updated successfully:", res.data);
-        alert(res.data.message); // use server message
+        alert(res.data.message);
       } catch (error) {
         if (error.response && error.response.data.error) {
-          alert("Error: " + error.response.data.error); // show server-side validation errors
+          alert("Error: " + error.response.data.error);
         } else {
           alert("Something went wrong. Please try again.");
         }
         console.error("Error updating personal details:", error);
       }
     },
-
     handleFileChange(event) {
       const file = event.target.files[0];
       if (file) {

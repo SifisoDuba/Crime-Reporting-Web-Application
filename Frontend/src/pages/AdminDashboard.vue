@@ -76,6 +76,7 @@ export default {
       try {
         const response = await axios.post('http://localhost:3000/upload-post', this.newPost);
         console.log(response);
+        
       }catch (err) {
       if (err.response && err.response.data && err.response.data.message) {
           alert(err.response.data.message);
