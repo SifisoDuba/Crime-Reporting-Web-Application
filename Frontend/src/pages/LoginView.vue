@@ -77,11 +77,12 @@ export default {
         });
         
         console.log('Login successful:', res.data);
-        
-        // Store login status and user email
+
+        // Store login status, user email, and ID Number
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('userEmail', this.email);
-        
+        localStorage.setItem('idNumber', res.data.idNumber);
+
         this.$router.push('/dashboard');
         
       } catch (err) {

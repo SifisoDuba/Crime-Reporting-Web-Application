@@ -95,7 +95,7 @@ connection.connect((err) => {
       
       -- Insert Hope Seja as a user
       INSERT IGNORE INTO User (IDNumber, FullName, Email, Password, PhoneNumber, AdditionalNotes, HouseNumber) VALUES
-      ('9202205800085', 'Hope Seja', 'hope.@gmail.com', '123456789', '0834567890', 'Community volunteer in neighborhood watch', 42);
+      ('9202205800085', 'Hope Seja', 'hope@gmail.com', '123456789', '0834567890', 'Community volunteer in neighborhood watch', 42);
       
       -- Insert Matthew Engelbrecht as admin
       INSERT IGNORE INTO Admin (AdminIdNumber, FullName, Email, Password, PhoneNumber, HouseNumber) VALUES
