@@ -119,6 +119,36 @@ export default {
               isEmergency: true
             }
           ]
+                },
+        {
+          id: 'fire',
+          name: 'Fire',
+          contacts: [
+            {
+              id: '4',
+              name: 'Fire Department',
+              number: '021 123 4567',
+              description: 'Call for fire emergencies and rescue services.',
+              icon: '🔥',
+              iconClass: 'fire',
+              isEmergency: true
+            }
+          ]
+        },
+        {
+          id: 'support',
+          name: 'Support',
+          contacts: [
+            {
+              id: '5',
+              name: 'Support Hotline',
+              number: '0800 987 6543',
+              description: 'Get help and support for various issues.',
+              icon: '💬',
+              iconClass: 'support',
+              isEmergency: false
+            }
+          ]
         }
       ]
     };
@@ -279,6 +309,16 @@ export default {
 .medical {
   background: linear-gradient(135deg, #10b981, #059669);
 }
+.medical {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+.fire {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+}
+.support {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
 
 .contact-number {
   font-family: 'Courier New', monospace;

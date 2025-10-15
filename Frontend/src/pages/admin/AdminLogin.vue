@@ -51,6 +51,8 @@ export default {
         const res = await axios.post('http://localhost:3000/admin-login', this.form);
         console.log('Success', res.data.message || 'Login successful!');
         localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('adminId', res.data.adminId);
+        localStorage.setItem('isAdmin', 'true');
         this.$router.push('/admin-dashboard');
       } catch (err) {
         this.loginError = err.response?.data?.error || 'Something went wrong.';

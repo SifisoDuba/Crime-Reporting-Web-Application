@@ -4,44 +4,50 @@
     <div v-if="$attrs.loading" class="loading">loading...</div>
     <div v-else-if="$attrs.error" class="error">{{ $attrs.error }}</div>
     <div class="cards-container">
-      <div class="report-card" v-for="report in reports" :key="report.id">
+      <div class="report-card" :class="{ 'emergency-report': report.IncidentType === 'Emergency Alert' }" v-for="report in reports" :key="report.ReportId">
         <div class="card-header">
-          <h2>{{ report.title }}</h2>
-          <span class="badge">{{ report.status || 'New' }}</span>
+          <h2>{{ report.IncidentType }}</h2>
+          <span class="badge">{{ report.Status || 'Pending' }}</span>
         </div>
         <div class="meta-data">
-          <span class="date">{{ report.date }}</span>
+          <span class="date">{{ formatDate(report.DateTime) }}</span>
           <span class="divider">•</span>
-          <span class="author">{{ report.author || 'System' }}</span>
+          <span class="author">{{ report.Anonymous ? 'Anonymous' : report.FullName }}</span>
         </div>
-        
-        <p class="description">Description: <br>{{ report.description }}</p>
-        <p class="authorities">Authorities: {{report.authorities}}</p>
-        <p class="location">Location: {{report.location}}</p>
-        
-        
+
+        <p class="description">Description: <br>{{ report.Description }}</p>
+        <p class="authorities">Authorities: {{ report.ResponseTime }}</p>
+        <p class="location">📍: {{ report.Location }}</p>
+        <p class="report-id">Report ID: {{ report.ReportId }}</p>
+
+        <div v-if="report.HasPhoto" class="photo-section">
+          <a :href="`http://localhost:3000/api/reports/${report.ReportId}/photo`" target="_blank" class="view-full-screen-link">Photo</a>
+        </div>
+
         <div class="status-grid">
           <button
             v-for="status in statusOptions"
             :key="status"
-            @click="selectStatus(report.id, status)"
+            @click="selectStatus(report.ReportId, status)"
             :class="{
               'status-btn': true,
-              'selected': selectedStatuses[report.id] === status
+              'selected': selectedStatuses[report.ReportId] === status
             }"
           >
             {{ status }}
           </button>
         </div>
         
-        <button 
+        <button
           class="history-btn"
-          @click="emitAddToHistory(report.id)"
+          @click="emitAddToHistory(report.ReportId)"
         >
           Add to Report History
         </button>
       </div>
     </div>
+
+
   </div>
 </template>
 
@@ -68,20 +74,13 @@ export default {
     const selectedStatuses = ref({});
 
     const selectStatus = (reportId, status) => {
-      // Toggle selection
-      if (selectedStatuses.value[reportId] === status) {
-        delete selectedStatuses.value[reportId];
-      } else {
-        selectedStatuses.value[reportId] = status;
-      }
-      
-      // Reactivity is preserved with ref's reactivity system
+      selectedStatuses.value[reportId] = status;
       selectedStatuses.value = {...selectedStatuses.value};
 
       // Emit event to parent
       emit('status-selected', {
         reportId,
-        status: selectedStatuses.value[reportId] || null
+        status
       });
     };
 
@@ -89,10 +88,18 @@ export default {
       emit('add-to-history', reportId);
     };
 
+    const formatDate = (dateStr) => {
+      if (!dateStr) return 'Date not available';
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return 'Invalid date';
+      return date.toLocaleString();
+    };
+
     return {
       selectedStatuses,
       selectStatus,
-      emitAddToHistory
+      emitAddToHistory,
+      formatDate
     };
   }
 };
@@ -235,6 +242,60 @@ h1 {
 
 .history-btn:hover {
   background: #e0e0e0;
+}
+
+.photo-section {
+  margin-bottom: 1.5rem;
+}
+
+
+
+.view-full-screen-link {
+  display: block;
+  margin-top: 0.5rem;
+  color: #1976d2;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.view-full-screen-link:hover {
+  text-decoration: underline;
+}
+
+.emergency-report {
+  border: 3px solid #ff0000;
+  background: linear-gradient(135deg, #ffe6e6 0%, #ffffff 100%);
+  animation: pulse 1s infinite;
+  position: relative;
+}
+
+.emergency-report::before {
+  content: '🚨 EMERGENCY';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff0000;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  z-index: 1;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+}
+
+.report-id {
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
 }
 </style>
 

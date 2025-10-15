@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <div class="nav-left">
-      <router-link to="/" exact>
+      <router-link to="/dashboard" exact>
         <img src="@/assets/images/logo.png" alt="Logo" width="65" height="65" />
       </router-link>
     </div>
@@ -20,13 +20,13 @@
     <span v-if="isMenuOpen && isMobile">Profile</span>
     <img
       v-else
-      src="@/assets/images/profile.png"
+      :src="profilePictureUrl || require('@/assets/images/profile.png')"
       alt="Profile"
       width="35"
       height="35"
     />
   </div>
-  <ul v-if="isProfileDropdownOpen && !isMobile" class="profile-dropdown">
+  <ul v-if="isProfileDropdownOpen" class="profile-dropdown">
     <li><router-link to="/personal-details" @click="closeProfileDropdown">Personal Details</router-link></li>
     <li><router-link to="/address" @click="closeProfileDropdown">Address</router-link></li>
     <li><a href="#" class="logout-link" @click.prevent="handleLogout">Logout</a></li>
@@ -45,6 +45,7 @@ export default {
       isMenuOpen: false,
       isMobile: window.innerWidth <= 768,
       isProfileDropdownOpen: false,
+      profilePictureUrl: null,
     };
   },
   methods: {
@@ -59,6 +60,19 @@ export default {
     toggleProfileDropdown() {
       if (!this.isMobile) {
         this.isProfileDropdownOpen = !this.isProfileDropdownOpen;
+      }
+    },
+    async fetchProfilePicture() {
+      const idNumber = localStorage.getItem('idNumber');
+      if (!idNumber) return;
+
+      try {
+        const response = await fetch(`http://localhost:3000/user-profile-picture/${idNumber}`);
+        if (!response.ok) throw new Error('Failed to fetch profile picture');
+        const blob = await response.blob();
+        this.profilePictureUrl = URL.createObjectURL(blob);
+      } catch (error) {
+        console.error('Error fetching profile picture:', error);
       }
     },
     closeProfileDropdown() {
@@ -77,6 +91,7 @@ export default {
   },
   mounted() {
     window.addEventListener('resize', this.handleResize);
+    this.fetchProfilePicture();
   },
   beforeUnmount() {
     window.removeEventListener('resize', this.handleResize);

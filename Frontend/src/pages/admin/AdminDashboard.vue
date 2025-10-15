@@ -1,12 +1,12 @@
 <template>
   <div class="Dashboard">
-    <div :class="['dashboard-content', { blurred: showModal }]">
+    <div :class="['dashboard-content', { blurred: showModal || showEditModal }]">
       <div class="dashboard-header">
         <h3 class="Header">Admin Dashboard</h3>
         <button class="create-btn" @click="openModal">Create Post</button>
       </div>
 
-      <NewsPost :posts="posts" />
+      <NewsPost v-for="post in posts" :key="post.PostId" :post="post" :isAdmin="true" @edit="editPost" @delete="deletePost" />
     </div>
     <div v-if="showModal" class="modal-overlay">
       <div class="modal-content">
@@ -38,12 +38,38 @@
         </div>
       </div>
     </div>
+    <div v-if="showEditModal" class="modal-overlay">
+      <div class="modal-content">
+        <h4>Edit News Post</h4>
+
+        <div class="modal-field">
+          <label>Title</label>
+          <input v-model="editingPost.title" type="text" placeholder="Post Title" />
+        </div>
+
+        <div class="modal-field">
+          <label>Author</label>
+          <input v-model="editingPost.author" type="text" placeholder="Author" />
+        </div>
+
+        <div class="modal-field">
+          <label>Content</label>
+          <textarea v-model="editingPost.content" placeholder="Write your content..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button class="post-btn" @click="submitEdit">Update</button>
+          <button class="cancel-btn" @click="showEditModal = false">Cancel</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import NewsPost from "../components/NewsPost.vue";
+import NewsPost from "../../components/admin/NewsPost.vue";
 import axios from 'axios';
+import { reactive } from 'vue';
 
 export default {
   name: "AdminDashboardPage",
@@ -53,6 +79,7 @@ export default {
   data() {
     return {
       showModal: false,
+      showEditModal: false,
       timestamp: '',
       posts: [],
       newPost: {
@@ -61,9 +88,23 @@ export default {
         content: '',
         timestamp: new Date().toLocaleString(),
       },
+      editingPost: reactive({
+        PostId: null,
+        title: '',
+        author: '',
+        content: '',
+      }),
     };
   },
   methods: {
+    async fetchPosts() {
+      try {
+        const response = await axios.get('http://localhost:3000/posts');
+        this.posts = response.data;
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      }
+    },
     openModal() {
       this.timestamp = new Date().toLocaleString();
       this.showModal = true;
@@ -76,30 +117,53 @@ export default {
       try {
         const response = await axios.post('http://localhost:3000/upload-post', this.newPost);
         console.log(response);
-        
-      }catch (err) {
-      if (err.response && err.response.data && err.response.data.message) {
+        // Reload the page to refresh posts
+        window.location.reload();
+      } catch (err) {
+        if (err.response && err.response.data && err.response.data.message) {
           alert(err.response.data.message);
           console.log('Error:', err.response.data.message);
         } else {
           alert('Something went wrong.');
           console.log('Error:', err);
         }
-    }
-
-      this.posts ??=[].unshift({
-        id: this.posts.length + 1,
-        title: this.newPost.title,
-        author: this.newPost.author,
-        content: this.newPost.content,
-        timestamp: this.timestamp
-      });
-
-      this.newPost.title = '';
-      this.newPost.author = '';
-      this.newPost.content = '';
-      this.timestamp = '';
-      this.showModal = false;
+      }
+    },
+    editPost(post) {
+      this.editingPost.PostId = post.PostId;
+      this.editingPost.title = post.Title;
+      this.editingPost.author = post.Author;
+      this.editingPost.content = post.Content;
+      this.showEditModal = true;
+    },
+    async deletePost(postId) {
+      try {
+        await axios.delete(`http://localhost:3000/posts/${postId}`);
+        alert('Post deleted successfully');
+        this.fetchPosts();
+      } catch (err) {
+        console.error('Error deleting post:', err);
+        alert('Failed to delete post');
+      }
+    },
+    async submitEdit() {
+      if (!this.editingPost.title || !this.editingPost.content || !this.editingPost.author) {
+        alert("All fields are required.");
+        return;
+      }
+      try {
+        await axios.put(`http://localhost:3000/posts/${this.editingPost.PostId}`, {
+          title: this.editingPost.title,
+          content: this.editingPost.content,
+          author: this.editingPost.author
+        });
+        alert('Post updated successfully');
+        this.showEditModal = false;
+        this.fetchPosts();
+      } catch (err) {
+        console.error('Error updating post:', err);
+        alert('Failed to update post');
+      }
     }
   },
   mounted() {
@@ -107,6 +171,7 @@ export default {
       this.$router.push('/login');
       return;
     }
+    this.fetchPosts();
   }
 };
 </script>

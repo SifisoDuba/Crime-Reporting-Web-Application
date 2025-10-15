@@ -1,7 +1,7 @@
 <template>
-  <div class="user-reports-component">
-    <h1>Your Crime Reports</h1>
-    <div v-if="loading" class="loading">Loading your reports...</div>
+  <div class="report-list-page">
+    <h2>Solved Crime Reports</h2>
+    <div v-if="loading" class="loading">Loading solved reports...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
       <div v-if="reports.length" class="cards-container">
@@ -29,8 +29,7 @@
         </div>
       </div>
       <div v-else class="no-reports">
-        <p>You haven't submitted any reports yet.</p>
-        <router-link to="/reporting" class="report-link">Submit your first report</router-link>
+        <p>No solved reports yet.</p>
       </div>
     </div>
   </div>
@@ -40,7 +39,7 @@
 import axios from 'axios';
 
 export default {
-  name: "UserReportSummary",
+  name: "ReportListPage",
   data() {
     return {
       reports: [],
@@ -49,30 +48,27 @@ export default {
     };
   },
   mounted() {
-    this.fetchUserReports();
+    this.fetchSolvedReports();
   },
   methods: {
-    async fetchUserReports() {
+    async fetchSolvedReports() {
       this.loading = true;
       try {
-        // Get user email from localStorage
-        const userEmail = localStorage.getItem('userEmail') || 'test@gmail.com';
-        
-        const response = await axios.get(`http://localhost:3000/api/user-reports?email=${userEmail}`);
-        this.reports = response.data;
+        const response = await axios.get('http://localhost:3000/api/reports');
+        this.reports = response.data.filter(report => report.Status === 'Solved');
       } catch (error) {
-        console.error('Error fetching user reports:', error);
-        this.error = 'Failed to load your reports. Please try again later.';
+        console.error('Error fetching solved reports:', error);
+        this.error = 'Failed to load solved reports. Please try again later.';
       } finally {
         this.loading = false;
       }
     },
-    
+
     formatDateTime(dateTime) {
       if (!dateTime) return 'Date not specified';
       return new Date(dateTime).toLocaleString();
     },
-    
+
     getStatusClass(status) {
       const statusClasses = {
         'Pending': 'status-pending',
@@ -85,7 +81,7 @@ export default {
       };
       return statusClasses[status] || 'status-pending';
     },
-    
+
     getResponseTimeLabel(responseTime) {
       const labels = {
         'now': 'Immediate',
@@ -99,14 +95,14 @@ export default {
 </script>
 
 <style scoped>
-.user-reports-component {
+.report-list-page {
   font-family: Arial, sans-serif;
   padding: 2rem;
   max-width: 1400px;
   margin: 0 auto;
 }
 
-h1 {
+h2 {
   text-align: center;
   margin-bottom: 2rem;
   color: #2c3e50;
@@ -267,139 +263,5 @@ h1 {
   text-align: center;
   padding: 3rem;
   color: #666;
-}
-
-.report-link {
-  display: inline-block;
-  margin-top: 1rem;
-  padding: 0.8rem 1.5rem;
-  background: #4f46e5;
-  color: white;
-  text-decoration: none;
-  border-radius: 8px;
-  transition: background 0.3s ease;
-}
-
-.report-link:hover {
-  background: #4338ca;
-}
-
-/* Media Queries for Responsiveness */
-@media (max-width: 768px) {
-  .user-reports-component {
-    padding: 1rem;
-  }
-
-  h1 {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .cards-container {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .report-card {
-    padding: 1.2rem;
-  }
-
-  .card-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .card-header h2 {
-    font-size: 1.1rem;
-  }
-
-  .badge {
-    font-size: 0.7rem;
-    padding: 0.3rem 0.6rem;
-  }
-
-  .meta-data {
-    font-size: 0.8rem;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.3rem;
-  }
-
-  .description {
-    font-size: 0.9rem;
-  }
-
-  .location, .response-time {
-    font-size: 0.85rem;
-  }
-
-  .report-meta {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .report-id {
-    font-size: 0.75rem;
-    text-align: left;
-  }
-
-  .no-reports {
-    padding: 2rem 1rem;
-  }
-
-  .report-link {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .user-reports-component {
-    padding: 0.5rem;
-  }
-
-  h1 {
-    font-size: 1.3rem;
-    margin-bottom: 1rem;
-  }
-
-  .report-card {
-    padding: 1rem;
-  }
-
-  .card-header h2 {
-    font-size: 1rem;
-  }
-
-  .badge {
-    font-size: 0.65rem;
-    padding: 0.25rem 0.5rem;
-  }
-
-  .meta-data {
-    font-size: 0.75rem;
-  }
-
-  .description {
-    font-size: 0.85rem;
-  }
-
-  .location, .response-time {
-    font-size: 0.8rem;
-  }
-
-  .report-id {
-    font-size: 0.7rem;
-  }
-
-  .no-reports {
-    padding: 1.5rem 0.5rem;
-  }
-
-  .report-link {
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
-  }
 }
 </style>
