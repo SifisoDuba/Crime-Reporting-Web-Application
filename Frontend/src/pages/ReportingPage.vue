@@ -138,10 +138,13 @@ export default {
         location: '',
         severity: '',
         responseTime: '',
-        dateTime: new Date().toISOString().slice(0, 16),
+        dateTime: (() => {
+          const now = new Date();
+          return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}T${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        })(),
         anonymous: false,
         followUp: true,
-        
+        photo: null
       },
       isSubmitting: false, // For loading state
       success: false,
@@ -161,36 +164,53 @@ export default {
         !this.form.responseTime
       ) {
         alert('Please fill all required fields.');
-        this.isSubmitting = false; // 🔹 Make sure we reset state
+        this.isSubmitting = false;
         return;
       }
 
       console.log('Submitting form:', this.form);
 
       try {
-        // Get user email from localStorage or use default for testing
-        const userEmail = localStorage.getItem('userEmail') || 'test@gmail.com';
-        
-        // Include user email in the report data
-        const reportData = {
-          ...this.form,
-          userEmail: userEmail
-        };
+        // Get user ID from localStorage
+        const userId = localStorage.getItem('idNumber');
 
-        const res = await axios.post('http://localhost:3000/report', reportData);
+        if (!userId) {
+          alert('User not logged in. Please log in to submit a report.');
+          this.isSubmitting = false;
+          return;
+        }
+
+        // Convert local datetime to UTC for backend storage
+        const localDate = new Date(`${this.form.dateTime}:00`);
+        const utcDateTime = localDate.toISOString().slice(0, 19).replace('T', ' ');
+
+        // Create FormData for multipart/form-data
+        const formData = new FormData();
+        formData.append('incidentType', this.form.incidentType);
+        formData.append('description', this.form.description);
+        formData.append('location', this.form.location);
+        formData.append('severity', this.form.severity);
+        formData.append('responseTime', this.form.responseTime);
+        formData.append('dateTime', utcDateTime);
+        formData.append('anonymous', this.form.anonymous);
+        formData.append('followUp', this.form.followUp);
+        formData.append('userId', userId);
+        if (this.form.photo) {
+          formData.append('photo', this.form.photo);
+        }
+
+        const res = await axios.post('http://localhost:3000/report', formData);
         console.log("Success:", res.data);
-        this.resetForm();
+        this.success = true;
+        this.reportId = res.data.reportId;
       } catch (error) {
         if (error.response) {
-          // Server responded with error status
           console.error("Server Error:", error.response.data);
           alert(`Server Error (${error.response.status}): ${error.response.data.message || 'Something went wrong.'}`);
         } else if (error.request) {
-          // Request made, but no response
           console.error("No Response:", error.request);
           alert("No response from server. Please check your connection or try again later.");
         } else {
-          // Something else
           console.error("Request Error:", error.message);
           alert(`Error: ${error.message}`);
         }
@@ -210,7 +230,10 @@ export default {
         location: '',
         severity: '',
         responseTime: '',
-        dateTime: new Date().toISOString().slice(0, 16),
+        dateTime: (() => {
+          const now = new Date();
+          return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}T${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        })(),
         anonymous: false,
         followUp: true,
         photo: null
@@ -243,7 +266,7 @@ export default {
       const file = event.target.files[0];
       if (file) {
         this.form.photo = file;
-        alert(`File "${file.name}" has been selected. Note: File upload is not fully implemented in this version.`);
+        alert(`Photo "${file.name}" selected successfully.`);
       }
     }
   }

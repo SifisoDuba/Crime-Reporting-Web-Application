@@ -17,8 +17,8 @@ import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 import Navbar from './components/Navbar.vue'
 import Footer from './components/Footer.vue'
-import AdminNavbar from './components/AdminNavbar.vue'
-import AdminFooter from './components/AdminFooter.vue'
+import AdminNavbar from './components/admin/AdminNavbar.vue'
+import AdminFooter from './components/admin/AdminFooter.vue'
 
 export default {
   name: 'App',
@@ -31,7 +31,7 @@ export default {
   setup() {
     const route = useRoute()
 
-    const noLayoutRoutes = ['/login', '/register', '/admin-login']
+    const noLayoutRoutes = ['/', '/login', '/register', '/admin-login']
 
     const adminRoutes = [
       '/admin-dashboard',

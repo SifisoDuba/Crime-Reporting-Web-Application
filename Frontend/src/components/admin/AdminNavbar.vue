@@ -1,7 +1,7 @@
 <template>
 <nav class="navbar">
   <div class="nav-left">
-    <router-link to="/" exact>
+    <router-link to="/admin-dashboard" exact>
       <img src="@/assets/images/logo.png" alt="Logo" width="65" height="65" />
     </router-link>
   </div>
@@ -13,7 +13,6 @@
         <li><router-link to="/admin-view-report">View Reports</router-link></li>
         <li><router-link to="/report-summary">Report Summary</router-link></li>
         <li><router-link to="/admin-emergency-contacts">Emergency contacts</router-link></li>
-        <li><router-link to="/about">About us</router-link></li>
     </div>
    <div class="nav-right">
 <li class="profile-menu" @click="toggleProfileDropdown" @mouseleave="closeProfileDropdown">

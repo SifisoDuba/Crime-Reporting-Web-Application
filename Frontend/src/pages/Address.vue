@@ -4,19 +4,19 @@
     <form @submit.prevent="handleSubmit">
       <label>
         Street Address:
-        <input type="text" v-model="form.street" placeholder="Street Address" />
-      </label>
-      <label>
-        City/Town:
-        <input type="text" v-model="form.city" placeholder="City/Town" />
+        <input type="text" v-model="form.street" placeholder="Street Address" required />
       </label>
       <label>
         House Number:
-        <input type="text" v-model="form.house" placeholder="House Number" />
+        <input type="text" v-model="form.house" placeholder="House Number" readonly />
       </label>
       <label>
-        Postal Code:
-        <input type="text" v-model="form.postalCode" placeholder="Postal Code" />
+        City:
+        <input type="text" v-model="form.city" placeholder="City" required />
+      </label>
+      <label>
+        Province:
+        <input type="text" v-model="form.province" placeholder="Province" required />
       </label>
       <button type="submit">Save</button>
     </form>
@@ -30,20 +30,39 @@ export default {
   data() {
     return {
       form: {
-        street: "12 Lower Level Road",
-        house: "759",
-        city: "Cape Town",
-        postalCode: "8000",
+        street: "",
+        house: "",
+        city: "",
+        province: "",
       },
     };
   },
+  mounted() {
+    const idNumber = localStorage.getItem('idNumber');
+    if (idNumber) {
+      this.fetchAddress(idNumber);
+    }
+  },
   methods: {
+    async fetchAddress(idNumber) {
+      try {
+        const response = await axios.get(`http://localhost:3000/address/${idNumber}`);
+        const address = response.data;
+        this.form.street = address.Street || '';
+        this.form.house = address.HouseNumber || '';
+        this.form.city = address.City || '';
+        this.form.province = address.Province || '';
+      } catch (error) {
+        console.error('Failed to fetch address:', error);
+        alert("Failed to load address details.");
+      }
+    },
     async handleSubmit() {
       console.log("Submitting address:", this.form);
       try {
-        const res = await axios.post('http://localhost:3000/address', this.form);
+        const res = await axios.post('http://localhost:3000/update-address', this.form);
         console.log("Address updated successfully:", res.data);
-        alert(res.data.message); 
+        alert(res.data.message);
       } catch (error) {
         console.error("Error updating address:", error);
         alert("Failed to update address. Please try again.");

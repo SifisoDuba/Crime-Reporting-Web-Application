@@ -52,8 +52,10 @@ export default {
         password: "",
         confirmPassword: "",
         idNumber: "",
+
       },
       selectedFile: null,
+      previewUrl: null,
     };
   },
   mounted() {
@@ -99,6 +101,36 @@ export default {
         console.error("Error updating personal details:", error);
       }
     },
+    
+    async handleUpload() {
+      if (!this.selectedFile) {
+        alert("No file selected.");
+        return;
+      }
+
+      try {
+        const formData = new FormData();
+        formData.append("profilePicture", this.selectedFile);
+        formData.append("idNumber", this.form.idNumber);
+
+        const res = await axios.post("http://localhost:3000/upload-profile-picture", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        });
+
+        alert("Profile picture updated!");
+        console.log("Upload response:", res.data);
+
+        this.selectedFile = null;
+        this.previewUrl = null;
+      } catch (err) {
+        console.error("Error uploading profile picture:", err);
+        alert("Failed to upload profile picture.");
+      }
+    },
+
+
     handleFileChange(event) {
       const file = event.target.files[0];
       if (file) {
@@ -106,16 +138,13 @@ export default {
         this.previewUrl = URL.createObjectURL(file);
       }
     },
-    handleUpload() {
-      alert("Profile picture updated!");
-      this.selectedFile = null;
-      this.previewUrl = null;
-    },
   },
 };
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
 .personal-details {
   max-width: 600px;
   margin: 20px auto;

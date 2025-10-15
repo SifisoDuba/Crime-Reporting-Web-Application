@@ -6,7 +6,6 @@
         <router-link to="/admin-view-report">View Reports</router-link>
         <router-link to="/report-summary">Report Summary</router-link>
         <router-link to="/admin-emergency-contacts">Emergency contacts</router-link>
-        <router-link to="/about">About us</router-link>
     </div>
     <div class="footer-info">
         <p>©{{ new Date().getFullYear() }} Crime Report System. All rights reserved.</p>

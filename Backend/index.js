@@ -2,7 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
 const connection = require('./database');
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,24 +18,12 @@ app.use(cors({
   credentials: true
 }));
 
-
 app.use(express.json());
-
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
-
-
-app.get(/(.*)/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-});
-
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running and ready at http://localhost:${PORT}`);
 });
 
-
-// REGISTER REQUEST
-let reports = [];
 
 app.post('/register', (req, res) => {
   const { fullName, idNumber, email, password, confirmPassword, phone, address, city, houseNumber, province, notes } = req.body;
@@ -59,8 +50,8 @@ app.post('/register', (req, res) => {
   }
 
   connection.query(
-    'INSERT INTO address (HouseNumber, Street, Province) VALUES (?, ?, ?)',
-    [houseNumber, address, province],
+    'INSERT INTO address (HouseNumber, Street, City, Province) VALUES (?, ?, ?, ?)',
+    [houseNumber, address, city, province],
     (err) => {
       if (err) {
         console.error('Database error:', err);
@@ -88,7 +79,6 @@ app.post('/register', (req, res) => {
   );
 });
 
-// LOGIN REQUEST
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   console.log('Received login data:', req.body);
@@ -110,54 +100,72 @@ app.post('/login', (req, res) => {
       idNumber = user.IDNumber;
       console.log(`User logged in: ${email}, ID Number: ${idNumber}`);
 
-      return res.status(200).json({ 
+      return res.status(200).json({
         message: 'Login successful!',
-        idNumber: idNumber,});
+        idNumber: idNumber,
+      });
     }
   );
 });
 
 
-// REPORT SUBMISSION WITH USER INFO
-app.post('/report', (req, res) => {
+app.post('/report', upload.single('photo'), (req, res) => {
   try {
-    const { incidentType, description, location, severity, dateTime, anonymous, followUp, responseTime, userEmail } = req.body;
+    const { incidentType, description, location, severity, dateTime, anonymous, followUp, responseTime, userId } = req.body;
+    const photoBuffer = req.file ? req.file.buffer : null;
+    const isAnonymous = anonymous === 'true' || anonymous === true;
     console.log('Received new report data:', req.body);
 
     if (!incidentType || !description || !location || !dateTime || !severity || !responseTime) {
       return res.status(400).json({ message: 'Please fill in all required fields.' });
     }
 
-    const newId = reports.length > 0 ? Math.max(...reports.map(r => r.id)) + 1 : 1;
-    const newReport = {
-      id: newId,
-      incidentType,
-      description,
-      location,
-      severity,
-      dateTime,
-      anonymous,
-      followUp,
-      responseTime,
-      userEmail: userEmail || 'anonymous',
-      status: 'Pending',
-      createdAt: new Date().toISOString()
-    };
-    reports.push(newReport);
+    if (!isAnonymous && !userId) {
+      return res.status(400).json({ message: 'User ID is required for non-anonymous reports.' });
+    }
 
-    res.status(201).json({
-      message: 'Report submitted successfully!',
-      reportId: `RPT-${newId}-${Date.now()}`
-    });
+    const idNumber = isAnonymous ? null : userId;
+
+    connection.query(
+      'INSERT INTO Report (IncidentType, Description, Location, SeverityLevel, ResponseTime, DateTime, Anonymous, ReceiveUpdates, Photo, IDNumber) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [incidentType, description, location, severity, responseTime, dateTime, isAnonymous ? 1 : 0, followUp ? 1 : 0, photoBuffer, idNumber],
+      (err, results) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(500).json({ message: 'Server error. Please try again later.' });
+        }
+        console.log('Report inserted:', results.insertId);
+        res.status(201).json({
+          message: 'Report submitted successfully!',
+          reportId: results.insertId
+        });
+      }
+    );
   } catch (err) {
     console.error("Server crash in /report:", err);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
+app.get('/reports', (req, res) => {
+  connection.query(
+    `SELECT ReportId, IncidentType, Description, Location, SeverityLevel, 
+            ResponseTime, DateTime, Anonymous, ReceiveUpdates, Status, IDNumber 
+     FROM Report`,
+    (err, results) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Server error. Please try again later.' });
+      }
+      res.json(results);
+      console.log(results);
+    }
+  );
+});
+
 
 app.post('/update-personal-details', (req, res) => {
-  const { name, email, number, password, confirmPassword,idNumber } = req.body;
+  const { name, email, number, password, confirmPassword, idNumber } = req.body;
   console.log('Received personal details update:', req.body);
 
   if (password !== confirmPassword) {
@@ -194,6 +202,47 @@ app.post('/update-personal-details', (req, res) => {
   });
 });
 
+app.post('/upload-profile-picture', upload.single('profilePicture'), (req, res) => {
+  const { idNumber } = req.body;
+  const fileBuffer = req.file.buffer;
+
+  if (!idNumber || !fileBuffer) {
+    return res.status(400).json({ error: "Missing file or user ID." });
+  }
+
+  connection.query(
+    'UPDATE user SET Picture = ? WHERE IDNumber = ?',
+    [fileBuffer, idNumber],
+    (err) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ error: "Database error." });
+      }
+      res.json({ message: "Profile picture updated successfully." });
+    }
+  );
+});
+
+app.get('/user-profile-picture/:idNumber', (req, res) => {
+  const idNumber = req.params.idNumber;
+  connection.query(
+    'SELECT Picture FROM user WHERE IDNumber = ?',
+    [idNumber],
+    (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).send("Database error");
+      }
+      if (results.length === 0 || !results[0].Picture) {
+        return res.status(404).send("No profile picture found");
+      }
+      const picture = results[0].Picture;
+      res.setHeader('Content-Type', 'image/jpeg');
+      res.send(picture);
+    }
+  );
+});
+
 
 app.get('/user/:idNumber', (req, res) => {
   const { idNumber } = req.params;
@@ -215,28 +264,57 @@ app.get('/user/:idNumber', (req, res) => {
 });
 
 
-app.post('/address', (req, res) => {
-  const { street, city, house, postalCode } = req.body;
-  console.log('Received address data:', req.body);
+app.get('/address/:idNumber', (req, res) => {
+  const { idNumber } = req.params;
 
-  res.status(201).json({
-    message: 'Address updated successfully!',
-    address: {
-      street,
-      city,
-      house,
-      postalCode
+  connection.query(
+    'SELECT a.Street, a.City, a.Province, u.HouseNumber FROM user u JOIN address a ON u.HouseNumber = a.HouseNumber WHERE u.IDNumber = ?',
+    [idNumber],
+    (err, results) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Server error. Please try again later.' });
+      }
+      if (results.length === 0) {
+        return res.status(404).json({ error: 'Address not found.' });
+      }
+      res.json(results[0]);
     }
+  );
+});
+
+
+app.post('/update-address', (req, res) => {
+  const { street, house, city, province } = req.body;
+  console.log('Received address update:', req.body);
+
+  connection.query(
+    'UPDATE address SET Street = ?, City = ?, Province = ? WHERE HouseNumber = ?',
+    [street, city, province, house],
+    (err, results) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Server error. Please try again later.' });
+      }
+      console.log('Address updated for House Number:', house);
+      res.status(201).json({
+        message: 'Address updated successfully!'
+      });
+    }
+  );
+});
+
+
+app.get('/api/reports', (req, res) => {
+  connection.query('SELECT r.ReportId, r.IncidentType, r.Description, r.Location, r.SeverityLevel, r.ResponseTime, r.DateTime, r.Anonymous, r.ReceiveUpdates, r.Status, r.IDNumber, CASE WHEN r.Photo IS NOT NULL THEN 1 ELSE 0 END as HasPhoto, u.FullName FROM Report r LEFT JOIN user u ON r.IDNumber = u.IDNumber ORDER BY r.DateTime DESC', (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Server error. Please try again later.' });
+    }
+    res.json(results);
   });
 });
 
-
-// GET ALL REPORTS
-app.get('/api/reports', (req, res) => {
-  res.json(reports);
-});
-
-// GET USER-SPECIFIC REPORTS
 app.get('/api/user-reports', (req, res) => {
   const { email } = req.query;
 
@@ -244,48 +322,78 @@ app.get('/api/user-reports', (req, res) => {
     return res.status(400).json({ message: 'Email parameter is required' });
   }
 
-  const userReports = reports.filter(report => report.userEmail === email);
-  res.json(userReports);
+  // First, get the IDNumber from User table using email
+  connection.query('SELECT IDNumber FROM User WHERE Email = ?', [email], (err, userResults) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Server error. Please try again later.' });
+    }
+    if (userResults.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const idNumber = userResults[0].IDNumber;
+
+    // Then, get reports using the IDNumber
+    connection.query('SELECT * FROM Report WHERE IDNumber = ? ORDER BY DateTime DESC', [idNumber], (err, reportResults) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ message: 'Server error. Please try again later.' });
+      }
+      res.json(reportResults);
+    });
+  });
 });
 
-// UPDATE REPORT STATUS
 app.patch('/api/reports/:id/status', (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
-  let updatedReport = null;
-  reports = reports.map(report => {
-    if (report.id === parseInt(id)) {
-      updatedReport = { ...report, status };
-      return updatedReport;
+  connection.query('UPDATE Report SET Status = ? WHERE ReportId = ?', [status, id], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Server error. Please try again later.' });
     }
-    return report;
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ message: 'Report not found' });
+    }
+    res.json({ message: 'Status updated' });
   });
-
-  if (updatedReport) {
-    res.json({ message: 'Status updated', report: updatedReport });
-  } else {
-    res.status(404).json({ message: 'Report not found' });
-  }
 });
 
-// ARCHIVE (DELETE) A REPORT
-app.post('/api/reports/:id/archive', (req, res) => {
+app.post('/api/reports/:id/history', (req, res) => {
   const { id } = req.params;
-  const initialLength = reports.length;
 
-  reports = reports.filter(report => report.id !== parseInt(id));
+  connection.query('UPDATE Report SET Status = "Solved", IsInHistory = 1 WHERE ReportId = ?', [id], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Server error. Please try again later.' });
+    }
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ message: 'Report not found' });
+    }
+    res.json({ message: 'Report added to history' });
+  });
+});
 
-  if (reports.length < initialLength) {
-    res.json({ message: 'Report archived' });
-  } else {
-    res.status(404).json({ message: 'Report not found' });
-  }
+app.get('/api/reports/:id/photo', (req, res) => {
+  const { id } = req.params;
+
+  connection.query('SELECT Photo FROM Report WHERE ReportId = ?', [id], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Server error. Please try again later.' });
+    }
+    if (results.length === 0 || !results[0].Photo) {
+      return res.status(404).json({ message: 'Photo not found' });
+    }
+    const photo = results[0].Photo;
+    res.setHeader('Content-Type', 'image/jpeg'); // Assuming JPEG, adjust if needed
+    res.send(photo);
+  });
 });
 
 
 
-// UPLOAD POST REQUEST
 app.post('/upload-post', (req, res) => {
   const { title, content, author, timestamp } = req.body;
   console.log('Received post data:', req.body);
@@ -303,8 +411,20 @@ app.post('/upload-post', (req, res) => {
   );
 });
 
+app.get('/posts', (req, res) => {
+  connection.query(
+    'SELECT PostId, Title, Author, Content, Timestamp FROM Post ORDER BY Timestamp DESC',
+    (err, results) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ error: 'Server error. Please try again later.' });
+      }
+      res.json(results);
+    }
+  );
+});
 
-// ADMIN LOGIN REQUEST
+
 app.post('/admin-login', (req, res) => {
   const { username, password } = req.body;
   console.log('Received admin login data:', req.body);
@@ -313,22 +433,70 @@ app.post('/admin-login', (req, res) => {
     return res.status(400).json({ errors: ['Please fill in both fields.'] });
   }
 
-  const validAdmin = {
-    username: 'admin',
-    password: 'admin123'
-  };
+  connection.query(
+    'SELECT * FROM admin WHERE Email = ? AND Password = ?',
+    [username, password],
+    (err, results) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ message: 'Server error' });
+      }
 
-  if (username !== validAdmin.username || password !== validAdmin.password) {
-    return res.status(401).json({ error: 'Invalid credentials' });
-  }
+      if (results.length === 0) {
+        console.log('No admin found with provided credentials');
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
 
+      const admin = results[0];
+      console.log(`Admin logged in: ${username}`);
 
-  const token = jwt.sign(
-    { username, role: 'admin' },
-    JWT_SECRET,
-    { expiresIn: '1h' }
+      return res.status(200).json({
+        message: 'Login successful!',
+        adminId: admin.AdminIdNumber
+      });
+    }
   );
-
-  res.json({ token });
 });
 
+
+
+
+app.put('/posts/:id', (req, res) => {
+  const { id } = req.params;
+  const { title, content, author } = req.body;
+
+  connection.query('UPDATE Post SET Title = ?, Content = ?, Author = ? WHERE PostId = ?', [title, content, author, id], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ errors: ['Server error. Please try again later.'] });
+    }
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+    res.json({ message: 'Post updated successfully' });
+  });
+});
+
+app.delete('/posts/:id', (req, res) => {
+  const { id } = req.params;
+
+  connection.query('DELETE FROM Post WHERE PostId = ?', [id], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ errors: ['Server error. Please try again later.'] });
+    }
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+    res.json({ message: 'Post deleted successfully' });
+  });
+});
+
+
+
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+
+app.get(/(.*)/, (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+});
