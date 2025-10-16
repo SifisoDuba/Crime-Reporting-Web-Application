@@ -8,7 +8,7 @@ const connection = require('./database');
 const upload = multer({ storage: multer.memoryStorage() });
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3306;
 const JWT_SECRET = 'your-super-secret-key-for-jwt';
 
 
