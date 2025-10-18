@@ -178,9 +178,9 @@ export default {
 
 <style scoped>
 .Dashboard {
-  background-color: #e6eff5;
+  background-color: #ffffff;
   font-family: Arial, sans-serif;
-  padding: 20px;
+  padding: 15px;
   min-height: 100vh;
   position: relative;
 }

@@ -167,6 +167,20 @@ body {
   display: block;
 }
 
+/* Profile picture styling */
+.profile-picture {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ddd;
+  transition: border-color 0.3s ease;
+}
+
+.profile-picture:hover {
+  border-color: #10b981;
+}
+
 /* Prevent navbar content shift when dropdown opens */
 .Navbar > div.nav-right {
   position: relative;

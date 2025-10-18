@@ -43,8 +43,32 @@ export default {
       });
   },
   methods: {
+    async fetchUserDetails(idNumber) {
+      try {
+        const response = await axios.get(`http://localhost:3000/user/${idNumber}`);
+        const user = response.data;
+        this.name = user.FullName.split(' ')[0] || 'John';
+        this.surname = user.FullName.split(' ')[1] || 'Wick';
+      } catch (error) {
+        console.error('Failed to fetch user details:', error);
+      }
+    },
+    async loadProfilePicture(idNumber) {
+      try {
+        const response = await axios.get(`http://localhost:3000/user-profile-picture/${idNumber}`, {
+          responseType: 'blob'
+        });
+        if (response.data.size > 0) {
+          this.profileImage = URL.createObjectURL(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to load profile picture:', error);
+        // Keep default image
+      }
+    },
     handleLogout() {
       localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("idNumber");
       this.$router.push("/login");
     },
   },

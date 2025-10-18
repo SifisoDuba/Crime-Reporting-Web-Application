@@ -108,6 +108,25 @@ export default {
         return;
       }
 
+      if (!this.form.idNumber) {
+        alert("User ID not found. Please log in again.");
+        return;
+      }
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(this.selectedFile.type)) {
+        alert("Please select a valid image file (JPEG, PNG, or GIF).");
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (this.selectedFile.size > maxSize) {
+        alert("File size must be less than 5MB.");
+        return;
+      }
+
       try {
         const formData = new FormData();
         formData.append("profilePicture", this.selectedFile);
@@ -126,7 +145,11 @@ export default {
         this.previewUrl = null;
       } catch (err) {
         console.error("Error uploading profile picture:", err);
-        alert("Failed to upload profile picture.");
+        if (err.response && err.response.data && err.response.data.error) {
+          alert("Error: " + err.response.data.error);
+        } else {
+          alert("Failed to upload profile picture. Please try again.");
+        }
       }
     },
 

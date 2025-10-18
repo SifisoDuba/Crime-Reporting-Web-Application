@@ -1,17 +1,27 @@
 <template>
   <div class="report-list-page">
-    <h2>Solved Crime Reports</h2>
-    <div v-if="loading" class="loading">Loading solved reports...</div>
+    <h2>Archived Crime Reports</h2>
+    <div v-if="loading" class="loading">Loading archived reports...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
-      <div v-if="reports.length" class="cards-container">
-        <div class="report-card" v-for="report in reports" :key="report.ReportId">
+      <div class="search-container">
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search by Report ID..."
+          class="search-input"
+        />
+      </div>
+      <div v-if="filteredReports.length" class="cards-container">
+        <div class="report-card" v-for="report in filteredReports" :key="report.ReportId">
           <div class="card-header">
             <h2>{{ report.IncidentType }}</h2>
             <span class="badge" :class="getStatusClass(report.Status)">{{ report.Status || 'Pending' }}</span>
           </div>
           <div class="meta-data">
             <span class="date">{{ formatDateTime(report.DateTime) }}</span>
+            <span class="divider">•</span>
+            <span class="author">{{ report.Anonymous ? 'Anonymous' : report.FullName }}</span>
             <span class="divider">•</span>
             <span class="severity">Severity: {{ report.SeverityLevel }}</span>
           </div>
@@ -20,16 +30,20 @@
           <p class="location">📍 {{ report.Location }}</p>
           <p class="response-time">Response: {{ getResponseTimeLabel(report.ResponseTime) }}</p>
 
+          <div v-if="report.HasPhoto" class="photo-section">
+            <a :href="`http://localhost:3000/api/reports/${report.ReportId}/photo`" target="_blank" class="view-full-screen-link">Photo</a>
+          </div>
+
           <div class="report-meta">
             <span class="anonymous" v-if="report.Anonymous">Submitted anonymously</span>
-            <span class="follow-up" v-if="report.ReceiveUpdates">Follow-up requested</span>
+            <span class="follow-up" v-if="report.ReceiveUpdates">Submitted successfully</span>
           </div>
 
           <div class="report-id">Report ID: {{ report.ReportId }}</div>
         </div>
       </div>
       <div v-else class="no-reports">
-        <p>No solved reports yet.</p>
+        <p>No archived reports yet.</p>
       </div>
     </div>
   </div>
@@ -44,21 +58,32 @@ export default {
     return {
       reports: [],
       loading: true,
-      error: null
+      error: null,
+      searchQuery: ''
     };
   },
+  computed: {
+    filteredReports() {
+      if (!this.searchQuery) {
+        return this.reports;
+      }
+      return this.reports.filter(report =>
+        report.ReportId.toString().includes(this.searchQuery.toLowerCase())
+      );
+    }
+  },
   mounted() {
-    this.fetchSolvedReports();
+    this.fetchArchivedReports();
   },
   methods: {
-    async fetchSolvedReports() {
+    async fetchArchivedReports() {
       this.loading = true;
       try {
-        const response = await axios.get('http://localhost:3000/api/reports');
-        this.reports = response.data.filter(report => report.Status === 'Solved');
+        const response = await axios.get('http://localhost:3000/api/reports/archived');
+        this.reports = response.data;
       } catch (error) {
-        console.error('Error fetching solved reports:', error);
-        this.error = 'Failed to load solved reports. Please try again later.';
+        console.error('Error fetching archived reports:', error);
+        this.error = 'Failed to load archived reports. Please try again later.';
       } finally {
         this.loading = false;
       }
@@ -263,5 +288,42 @@ h2 {
   text-align: center;
   padding: 3rem;
   color: #666;
+}
+
+.search-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+.photo-section {
+  margin-bottom: 1.5rem;
+}
+
+.view-full-screen-link {
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.view-full-screen-link:hover {
+  text-decoration: underline;
 }
 </style>

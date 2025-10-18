@@ -22,8 +22,7 @@
       v-else
       :src="profilePictureUrl || require('@/assets/images/profile.png')"
       alt="Profile"
-      width="35"
-      height="35"
+      class="profile-picture"
     />
   </div>
   <ul v-if="isProfileDropdownOpen" class="profile-dropdown">

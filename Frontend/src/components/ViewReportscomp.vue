@@ -16,7 +16,8 @@
         </div>
 
         <p class="description">Description: <br>{{ report.Description }}</p>
-        <p class="authorities">Authorities: {{ report.ResponseTime }}</p>
+        <p class="authorities">Severity: {{ report.SeverityLevel }}</p>
+        <p class="authorities">Responce: {{ report.ResponseTime }}</p>
         <p class="location">📍: {{ report.Location }}</p>
         <p class="report-id">Report ID: {{ report.ReportId }}</p>
 
@@ -37,12 +38,11 @@
             {{ status }}
           </button>
         </div>
-        
         <button
-          class="history-btn"
-          @click="emitAddToHistory(report.ReportId)"
+          class="archive-btn"
+          @click="emitArchiveReport(report.ReportId)"
         >
-          Add to Report History
+          Archive Report
         </button>
       </div>
     </div>
@@ -88,6 +88,10 @@ export default {
       emit('add-to-history', reportId);
     };
 
+    const emitArchiveReport = (reportId) => {
+      emit('archive-report', reportId);
+    };
+
     const formatDate = (dateStr) => {
       if (!dateStr) return 'Date not available';
       const date = new Date(dateStr);
@@ -99,6 +103,7 @@ export default {
       selectedStatuses,
       selectStatus,
       emitAddToHistory,
+      emitArchiveReport,
       formatDate
     };
   }
@@ -242,6 +247,23 @@ h1 {
 
 .history-btn:hover {
   background: #e0e0e0;
+}
+
+.archive-btn {
+  width: 100%;
+  padding: 0.85rem;
+  background: #ffeb3b;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  color: #424242;
+  margin-top: 1rem;
+}
+
+.archive-btn:hover {
+  background: #fdd835;
 }
 
 .photo-section {

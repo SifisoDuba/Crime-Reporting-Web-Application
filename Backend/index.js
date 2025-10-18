@@ -306,7 +306,7 @@ app.post('/update-address', (req, res) => {
 
 
 app.get('/api/reports', (req, res) => {
-  connection.query('SELECT r.ReportId, r.IncidentType, r.Description, r.Location, r.SeverityLevel, r.ResponseTime, r.DateTime, r.Anonymous, r.ReceiveUpdates, r.Status, r.IDNumber, CASE WHEN r.Photo IS NOT NULL THEN 1 ELSE 0 END as HasPhoto, u.FullName FROM Report r LEFT JOIN user u ON r.IDNumber = u.IDNumber ORDER BY r.DateTime DESC', (err, results) => {
+  connection.query('SELECT r.ReportId, r.IncidentType, r.Description, r.Location, r.SeverityLevel, r.ResponseTime, r.DateTime, r.Anonymous, r.ReceiveUpdates, r.Status, r.IDNumber, r.isArchived, CASE WHEN r.Photo IS NOT NULL THEN 1 ELSE 0 END as HasPhoto, u.FullName FROM Report r LEFT JOIN user u ON r.IDNumber = u.IDNumber WHERE r.isArchived = 0 ORDER BY r.DateTime DESC', (err, results) => {
     if (err) {
       console.error('Database error:', err);
       return res.status(500).json({ message: 'Server error. Please try again later.' });
@@ -360,10 +360,10 @@ app.patch('/api/reports/:id/status', (req, res) => {
   });
 });
 
-app.post('/api/reports/:id/history', (req, res) => {
+app.post('/api/reports/:id/archive', (req, res) => {
   const { id } = req.params;
 
-  connection.query('UPDATE Report SET Status = "Solved", IsInHistory = 1 WHERE ReportId = ?', [id], (err, results) => {
+  connection.query('UPDATE Report SET isArchived = 1 WHERE ReportId = ?', [id], (err, results) => {
     if (err) {
       console.error('Database error:', err);
       return res.status(500).json({ message: 'Server error. Please try again later.' });
@@ -371,7 +371,17 @@ app.post('/api/reports/:id/history', (req, res) => {
     if (results.affectedRows === 0) {
       return res.status(404).json({ message: 'Report not found' });
     }
-    res.json({ message: 'Report added to history' });
+    res.json({ message: 'Report archived successfully' });
+  });
+});
+
+app.get('/api/reports/archived', (req, res) => {
+  connection.query('SELECT r.ReportId, r.IncidentType, r.Description, r.Location, r.SeverityLevel, r.ResponseTime, r.DateTime, r.Anonymous, r.ReceiveUpdates, r.Status, r.IDNumber, r.isArchived, CASE WHEN r.Photo IS NOT NULL THEN 1 ELSE 0 END as HasPhoto, u.FullName FROM Report r LEFT JOIN user u ON r.IDNumber = u.IDNumber WHERE r.isArchived = 1 ORDER BY r.DateTime DESC', (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Server error. Please try again later.' });
+    }
+    res.json(results);
   });
 });
 
