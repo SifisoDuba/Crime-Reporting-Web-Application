@@ -20,6 +20,10 @@
           <p class="location">📍 {{ report.Location }}</p>
           <p class="response-time">Response: {{ getResponseTimeLabel(report.ResponseTime) }}</p>
 
+          <div v-if="report.HasPhoto" class="photo-section">
+            <a :href="`http://localhost:3000/api/reports/${report.ReportId}/photo`" target="_blank" class="view-full-screen-link">Photo</a>
+          </div>
+
           <div class="report-meta">
             <span class="anonymous" v-if="report.Anonymous">Submitted anonymously</span>
             <span class="follow-up" v-if="report.ReceiveUpdates">Follow-up requested</span>
@@ -282,6 +286,21 @@ h1 {
 
 .report-link:hover {
   background: #4338ca;
+}
+
+.photo-section {
+  margin-bottom: 1.5rem;
+}
+
+.view-full-screen-link {
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.view-full-screen-link:hover {
+  text-decoration: underline;
 }
 
 /* Media Queries for Responsiveness */

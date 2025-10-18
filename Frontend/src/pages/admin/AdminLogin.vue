@@ -1,26 +1,41 @@
 <template>
   <div class="login-page">
-    <div class="login-background"></div>
+    <!-- Left Side: Image -->
+    <div class="login-image-section">
+      <img :src="backgroundImage" alt="Admin Login Visual" />
+      <div class="admin-badge">
+        <h3>Admin Portal</h3>
+        <p>Authorized Personnel Only</p>
+      </div>
+    </div>
 
-    <div class="login-container">
-      <h2>Welcome</h2>
-      <img src="@/assets/images/logo.png" alt="Admin" class="admin-image" />
-      
-      <form @submit.prevent="handleLogin" class="login-form">
-        <div class="form-group">
-          <label for="username">Username:</label>
-          <input type="text" id="username" v-model="form.username" required aria-label="Username">
-        </div>
-        <div class="form-group">
-          <label for="password">Password:</label>
-          <input type="password" id="password" v-model="form.password" required aria-label="Password">
-        </div>
-        <p class="forgot-password"><a href="#">Forgot Password?</a></p>
-        <div class="button-container">
-          <button type="submit" :disabled="isLoading">{{ isLoading ? 'Logging in...' : 'Login' }}</button>
-        </div>
-        <p v-if="loginError" class="error">{{ loginError }}</p>
-      </form>
+    <!-- Right Side: Login Form -->
+    <div class="login-form-section">
+      <div class="form-box">
+        <h2>Admin Login</h2>
+        <p>Please log in to your admin account</p>
+
+        <form @submit.prevent="handleLogin">
+          <div class="input-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" v-model="form.username" required />
+          </div>
+
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" v-model="form.password" required />
+          </div>
+
+          <p v-if="loginError" class="error-message">{{ loginError }}</p>
+
+          <button class="login-btn" type="submit" :disabled="isLoading">{{ isLoading ? 'Logging in...' : 'Login' }}</button>
+        </form>
+
+        <p class="register-link">
+          Back to user login:
+          <router-link to="/login">User Login</router-link>
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -28,6 +43,7 @@
 
 <script>
 import axios from 'axios';
+import backgroundImage from '@/assets/images/Background.jpg';
 
 export default {
   name: 'AdminLogin',
@@ -38,7 +54,8 @@ export default {
         password: ''
       },
       loginError: '',
-      isLoading: false
+      isLoading: false,
+      backgroundImage
     };
   },
   methods: {
@@ -66,132 +83,165 @@ export default {
 </script>
 
 <style scoped>
-/* Background */
 .login-page {
   display: flex;
-  justify-content: center;
-  align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #ff4b4b, #00c853, #2979ff);
-  background-size: 300% 300%;
-  animation: gradientBG 10s ease infinite;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
-/* Gradient animation */
-@keyframes gradientBG {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Container */
-.login-container {
-  background: #ffffff;
-  padding: 2rem 2.5rem;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  width: 100%;
-  max-width: 380px;
-  text-align: center;
-}
-
-/* Title */
-.login-container h2 {
-  margin-bottom: 1rem;
-  color: #2979ff;
-  font-weight: 700;
-  font-size: 1.8rem;
-}
-
-/* Logo */
-.admin-image {
-  width: 80px;
-  margin-bottom: 1rem;
-  border-radius: 50%;
-  border: 3px solid #00c853;
-}
-
-/* Form */
-.login-form {
+.login-image-section {
+  flex: 1;
+  background-color: #e0e7ff;
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
 }
-
-/* Labels */
-.form-group label {
-  display: block;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 0.3rem;
-  text-align: left;
-}
-
-/* Inputs */
-.form-group input {
+.login-image-section img {
   width: 100%;
-  padding: 0.7rem;
-  border: 1.5px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
+  height: 100%;
+  object-fit: cover;
 }
 
-.form-group input:focus {
-  border-color: #2979ff;
-  outline: none;
-  box-shadow: 0 0 6px rgba(41,121,255,0.3);
+.admin-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+  z-index: 1;
 }
 
-/* Forgot Password */
-.forgot-password {
-  text-align: right;
-  margin-top: -0.5rem;
+.admin-badge h3 {
+  font-size: 2.5rem;
+  font-weight: bold;
   margin-bottom: 0.5rem;
 }
 
-.forgot-password a {
-  font-size: 0.9rem;
-  color: #ff4b4b;
-  text-decoration: none;
-  transition: 0.3s;
+.admin-badge p {
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
-.forgot-password a:hover {
-  text-decoration: underline;
+.login-form-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+  padding: 40px;
 }
 
-/* Button */
-.button-container button {
+.form-box {
   width: 100%;
-  padding: 0.8rem;
+  max-width: 400px;
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+}
+
+.form-box h2 {
+  margin-bottom: 10px;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.form-box p {
+  margin-bottom: 20px;
+  color: #6b7280;
+}
+
+.input-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.input-group input {
+  padding: 12px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fff;
+  transition: border-color 0.3s ease;
+}
+
+.input-group input:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  background: #dc2626;
+  color: white;
   border: none;
   border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #fff;
+  font-weight: 600;
   cursor: pointer;
-  background: linear-gradient(45deg, #2979ff, #00c853);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: background 0.3s ease;
 }
 
-.button-container button:disabled {
-  background: #ccc;
+.login-btn:hover {
+  background: #b91c1c;
+}
+
+.login-btn:disabled {
+  background: #9ca3af;
   cursor: not-allowed;
 }
 
-.button-container button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+.register-link {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.9rem;
 }
 
-/* Error message */
-.error {
-  color: #ff4b4b;
-  font-size: 0.95rem;
-  margin-top: 0.5rem;
+.register-link a {
+  color: #3b82f6;
   font-weight: 600;
+  text-decoration: none;
+}
+
+.error-message {
+  color: red;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .login-page {
+    flex-direction: column;
+  }
+
+  .login-image-section {
+    flex: none;
+    height: 200px;
+  }
+
+  .admin-badge h3 {
+    font-size: 1.8rem;
+  }
+
+  .admin-badge p {
+    font-size: 1rem;
+  }
+
+  .form-box {
+    padding: 20px;
+  }
 }
 </style>
 

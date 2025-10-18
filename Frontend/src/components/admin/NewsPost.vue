@@ -75,7 +75,7 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 .news-card {
   padding: 1rem;
-  border: 1px solid #61c5ff;
+  border: 1px solid #adc3cf;
   border-width: 2px;
   margin-bottom: 1rem;
   margin-top: -10px;
@@ -134,7 +134,7 @@ export default {
 }
 
 .edit-btn {
-  background-color: #f59e0b;
+  background-color: #3b82f6;
   color: white;
   border: none;
   padding: 5px 10px;
@@ -143,11 +143,11 @@ export default {
 }
 
 .edit-btn:hover {
-  background-color: #d97706;
+  background-color: #2563eb;
 }
 
 .delete-btn {
-  background-color: #ef4444;
+  background-color: #10b981;
   color: white;
   border: none;
   padding: 5px 10px;
@@ -156,7 +156,7 @@ export default {
 }
 
 .delete-btn:hover {
-  background-color: #dc2626;
+  background-color: #059669;
 }
 
 /* Responsive for mobile devices */

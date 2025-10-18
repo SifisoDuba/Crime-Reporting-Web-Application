@@ -7,7 +7,8 @@
       :reports="reports"
       :status-options="statusOptions"
       @status-selected="handleStatusSelected"
-      @add-to-history="handleAddToHistory"
+    @add-to-history="handleAddToHistory"
+    @archive-report="handleArchiveReport"
     />
   </div>
 </template>
@@ -67,6 +68,15 @@ export default {
         await this.fetchReports(); // Refresh reports after adding to history
       } catch (err) {
         this.error = 'Failed to add report to history';
+        console.error(err);
+      }
+    },
+    async handleArchiveReport(reportId) {
+      try {
+        await axios.post(`http://localhost:3000/api/reports/${reportId}/archive`);
+        await this.fetchReports(); // Refresh reports after archiving
+      } catch (err) {
+        this.error = 'Failed to archive report';
         console.error(err);
       }
     },

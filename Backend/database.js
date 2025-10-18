@@ -33,7 +33,7 @@ connection.connect((err) => {
       PhoneNumber VARCHAR(11),
       AdditionalNotes TEXT,
       RegistrationTime DATETIME DEFAULT CURRENT_TIMESTAMP,
-      Picture BLOB,
+      Picture LONGBLOB,
       HouseNumber INT,
       FOREIGN KEY (HouseNumber) REFERENCES Address(HouseNumber)
     );
@@ -59,7 +59,8 @@ connection.connect((err) => {
       DateTime DATETIME DEFAULT CURRENT_TIMESTAMP,
       Anonymous TINYINT(1) DEFAULT 0,
       ReceiveUpdates TINYINT(1) DEFAULT 1,
-      Photo BLOB,
+      isArchived TINYINT(1) DEFAULT 0,
+      Photo LONGBLOB,
       Status VARCHAR(50) DEFAULT 'Pending',
       IDNumber VARCHAR(20),
       FOREIGN KEY (IDNumber) REFERENCES User(IDNumber)
@@ -102,10 +103,10 @@ INSERT IGNORE INTO Address (HouseNumber, Street,  City, Province) VALUES
       ('8503155500087', 'Matthew Engelbrecht', 'matthew@crimereport.gov.za', 'Admin@123', '0215551234', 15);
       
       -- Insert sample reports with explicit IDs to avoid duplicates
-      INSERT IGNORE INTO Report (ReportId, IncidentType, Description, Location, SeverityLevel, ResponseTime, DateTime, Anonymous, ReceiveUpdates, Status, IDNumber) VALUES
-      (1, 'Theft', 'Car broken into and laptop stolen', 'Milnerton Shopping Centre', 'Medium', 'Within 2 hours', '2023-10-15 14:30:00', 0, 1, 'Pending', '9202205800085'),
-      (2, 'Vandalism', 'Graffiti on community center walls', 'Milnerton High School', 'Low', 'Within 24 hours', '2023-10-18 09:15:00', 1, 0, 'Pending', '9202205800085'),
-      (3, 'Suspicious Activity', 'Unknown persons loitering near electricity substation', 'Koeberg Road near power plant', 'High', 'Immediate', '2023-10-20 22:45:00', 0, 1, 'Pending', '9202205800085');
+      INSERT IGNORE INTO Report (ReportId, IncidentType, Description, Location, SeverityLevel, ResponseTime, DateTime, Anonymous, ReceiveUpdates, isArchived, Status, IDNumber) VALUES
+      (1, 'Theft', 'Car broken into and laptop stolen', 'Milnerton Shopping Centre', 'Medium', 'Within 2 hours', '2023-10-15 14:30:00', 0, 1, 0, 'Pending', '9202205800085'),
+      (2, 'Vandalism', 'Graffiti on community center walls', 'Milnerton High School', 'Low', 'Within 24 hours', '2023-10-18 09:15:00', 1, 0, 0, 'Pending', '9202205800085'),
+      (3, 'Suspicious Activity', 'Unknown persons loitering near electricity substation', 'Koeberg Road near power plant', 'High', 'Immediate', '2023-10-20 22:45:00', 0, 1, 0, 'Pending', '9202205800085');
       
       -- Insert sample community posts with explicit IDs
       INSERT IGNORE INTO Post (PostId, Title, Author, Content, AdminIdNumber) VALUES
