@@ -1,11 +1,9 @@
 <template>
   <div class="login-page">
-    <!-- Left Side: Image -->
     <div class="login-image-section">
       <img :src="backgroundImage" alt="Login Visual" />
     </div>
 
-    <!-- Right Side: Login Form -->
     <div class="login-form-section">
       <div class="form-box">
         <h2>Welcome Back</h2>
@@ -78,7 +76,6 @@ export default {
         
         console.log('Login successful:', res.data);
 
-        // Store login status, user email, and ID Number
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('userEmail', this.email);
         localStorage.setItem('idNumber', res.data.idNumber);

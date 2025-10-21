@@ -46,12 +46,12 @@ export default {
 .login-form {
   display: flex;
   flex-direction: column;
-  width: 100%; /* Full width of the container */
+  width: 100%; 
 }
 
 .form-group {
   margin-bottom: 15px;
-  width: 100%; /* Ensure full width for form groups */
+  width: 100%; 
 }
 
 label {
@@ -61,8 +61,8 @@ label {
 
 input[type="text"],
 input[type="password"] {
-  width: 100%; /* Full width */
-  padding: 12px; /* Increase padding for better touch targets */
+  width: 100%; 
+  padding: 12px; 
   background-color: #B1AFB2;
   border: 1px solid #1D1B20;
   border-radius: 4px;
@@ -70,9 +70,9 @@ input[type="password"] {
 }
 
 button { 
-  width: 100%; /* Full width */
-  padding: 12px; /* Increase padding for better touch targets */
-  background-color: #2D2C2D; /* Change button color to black */
+  width: 100%; 
+  padding: 12px; 
+  background-color: #2D2C2D; 
   color: white;
   border: none;
   border-radius: 4px;
@@ -80,7 +80,7 @@ button {
 }
 
 button:hover {
-  background-color: #222; /* Darker shade on hover */
+  background-color: #222; 
 }
 
 .button-container {
@@ -95,12 +95,12 @@ button:hover {
 }
 
 .forgot-password a {
-  color: #007bff; /* Link color */
-  text-decoration: none; /* Remove underline */
+  color: #007bff; 
+  text-decoration: none; 
 }
 
 .forgot-password a:hover {
-  text-decoration: underline; /* Underline on hover */
+  text-decoration: underline;
 }
 
 .error {
@@ -108,15 +108,15 @@ button:hover {
   margin-top: 10px;
 }
 
-/* Media Queries for AdminLoginComp */
+
 @media (max-width: 600px) {
   input[type="text"],
   input[type="password"] {
-    padding: 10px; /* Adjust padding for smaller screens */
+    padding: 10px; 
   }
 
   button {
-    padding: 10px; /* Adjust button padding */
+    padding: 10px;
   }
 }
 </style>

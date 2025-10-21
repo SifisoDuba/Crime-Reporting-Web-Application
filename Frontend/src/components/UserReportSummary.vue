@@ -59,7 +59,6 @@ export default {
     async fetchUserReports() {
       this.loading = true;
       try {
-        // Get user email from localStorage
         const userEmail = localStorage.getItem('userEmail') || 'test@gmail.com';
         
         const response = await axios.get(`http://localhost:3000/api/user-reports?email=${userEmail}`);

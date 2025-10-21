@@ -21,7 +21,7 @@ app.use(cors({
 app.use(express.json());
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running and ready at http://localhost:${PORT}`);
+  console.log(`Server running and ready at http://localhost:${PORT}`);
 });
 
 
@@ -322,7 +322,6 @@ app.get('/api/user-reports', (req, res) => {
     return res.status(400).json({ message: 'Email parameter is required' });
   }
 
-  // First, get the IDNumber from User table using email
   connection.query('SELECT IDNumber FROM User WHERE Email = ?', [email], (err, userResults) => {
     if (err) {
       console.error('Database error:', err);
@@ -333,7 +332,6 @@ app.get('/api/user-reports', (req, res) => {
     }
     const idNumber = userResults[0].IDNumber;
 
-    // Then, get reports using the IDNumber
     connection.query('SELECT * FROM Report WHERE IDNumber = ? ORDER BY DateTime DESC', [idNumber], (err, reportResults) => {
       if (err) {
         console.error('Database error:', err);
@@ -397,7 +395,7 @@ app.get('/api/reports/:id/photo', (req, res) => {
       return res.status(404).json({ message: 'Photo not found' });
     }
     const photo = results[0].Photo;
-    res.setHeader('Content-Type', 'image/jpeg'); // Assuming JPEG, adjust if needed
+    res.setHeader('Content-Type', 'image/jpeg');
     res.send(photo);
   });
 });

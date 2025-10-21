@@ -41,7 +41,7 @@ export default {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 .Dashboard {
-  background-color: #e6eff5;
+  background-color: #ffffff;
   min-height: 100vh;
 }
 .Header {
