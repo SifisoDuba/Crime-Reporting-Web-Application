@@ -146,7 +146,7 @@ export default {
         followUp: true,
         photo: null
       },
-      isSubmitting: false, // For loading state
+      isSubmitting: false,
       success: false,
       reportId: '',
       locationUsed: false
@@ -171,7 +171,6 @@ export default {
       console.log('Submitting form:', this.form);
 
       try {
-        // Get user ID from localStorage
         const userId = localStorage.getItem('idNumber');
 
         if (!userId) {
@@ -180,11 +179,9 @@ export default {
           return;
         }
 
-        // Convert local datetime to UTC for backend storage
         const localDate = new Date(`${this.form.dateTime}:00`);
         const utcDateTime = localDate.toISOString().slice(0, 19).replace('T', ' ');
 
-        // Create FormData for multipart/form-data
         const formData = new FormData();
         formData.append('incidentType', this.form.incidentType);
         formData.append('description', this.form.description);

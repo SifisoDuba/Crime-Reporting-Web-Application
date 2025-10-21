@@ -10,8 +10,16 @@
       <div class="footer-info">
         <p>©{{ new Date().getFullYear() }} Crime Report System. All rights reserved.</p>
         <p class="disclaimer">⚠️ Please note: False reports may result in legal action.</p><br>
-        <p><router-link to="https://www.saps.gov.za/legislation/acts/act68of1995.pdf">Terms & Conditions</router-link> | <router-link to="/privacy">Privacy Policy</router-link></p>
-        
+        <p>
+  <a href="https://www.saps.gov.za/legislation/acts/act68of1995.pdf" target="_blank" rel="noopener noreferrer">
+    Terms & Conditions
+  </a> 
+  | 
+    <a href="https://www.policinginstitute.org/privacy-policy/" target="_blank" rel="noopener noreferrer">
+    Terms & Conditions
+  </a> 
+</p>
+
       </div>
       <div class="Emergency-contacts">
         <p>Emergency Contacts:</p>

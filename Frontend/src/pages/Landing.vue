@@ -1,6 +1,5 @@
 <template>
   <div class="landing-page">
-    <!-- Hero Section -->
     <section class="hero">
       <div class="hero-content">
         <h1>Report Crimes. Stay Safe. Empower Communities.</h1>
@@ -15,7 +14,6 @@
       </div>
     </section>
 
-    <!-- How It Works -->
     <section class="how-it-works">
       <h2>How It Works</h2>
       <div class="steps">
@@ -37,7 +35,6 @@
       </div>
     </section>
 
-    <!-- Why Us Section -->
     <section class="why-us">
       <div class="why-content">
         <div class="text">
@@ -55,7 +52,6 @@
       </div>
     </section>
 
-    <!-- Recent Reports -->
     <section class="recent-reports">
       <h2>Recent Reports</h2>
       <div class="reports-grid">
@@ -77,7 +73,6 @@
       </div>
     </section>
 
-    <!-- Community Safety -->
     <section class="community-safety">
       <div class="safety-content">
         <div class="image">
@@ -93,7 +88,6 @@
       </div>
     </section>
 
-    <!-- Footer -->
     <footer>
       <p>© 2025 Crime Reporting Web Application | All Rights Reserved</p>
     </footer>
@@ -108,7 +102,6 @@ export default {
   methods: {
     async submitEmergencyReport() {
       try {
-        // Get current location
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             async (pos) => {
@@ -116,7 +109,6 @@ export default {
               const lng = pos.coords.longitude.toFixed(6);
               const location = `Lat: ${lat}, Lng: ${lng}`;
 
-              // Prepare emergency report data
               const emergencyData = {
                 incidentType: 'Emergency Alert',
                 description: 'Panic Button',
@@ -126,10 +118,9 @@ export default {
                 dateTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
                 anonymous: true,
                 followUp: false,
-                userId: '0000000000000' // Placeholder for anonymous
+                userId: '0000000000000' 
               };
 
-              // Submit the report
               const res = await axios.post('http://localhost:3000/report', emergencyData);
               console.log("Emergency report submitted:", res.data);
               alert('Emergency alert sent! Authorities have been notified.');
@@ -159,7 +150,6 @@ export default {
   box-sizing: border-box;
 }
 
-/* Hero Section */
 .hero {
   background: linear-gradient(rgba(13,71,161,0.7), rgba(46,125,50,0.7)),
               url('@/assets/images/Background.jpg') center/cover no-repeat;
@@ -413,7 +403,6 @@ export default {
   line-height: 1.6;
 }
 
-/* Footer */
 footer {
   background: #0D47A1;
   color: white;
@@ -433,7 +422,6 @@ footer a:hover {
   color: #fff;
 }
 
-/* Media Queries */
 @media (max-width: 1024px) {
   .hero h1 {
     font-size: 2.8rem;

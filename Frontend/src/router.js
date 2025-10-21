@@ -36,7 +36,6 @@ const router = createRouter({
     routes
 })
 
-// Navigation guard to check login status
 router.beforeEach((to, from, next) => {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const publicPages = ['/', '/login', '/register', '/admin-login'];

@@ -113,15 +113,13 @@ export default {
         return;
       }
 
-      // Validate file type
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
       if (!allowedTypes.includes(this.selectedFile.type)) {
         alert("Please select a valid image file (JPEG, PNG, or GIF).");
         return;
       }
 
-      // Validate file size (max 5MB)
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const maxSize = 5 * 1024 * 1024; 
       if (this.selectedFile.size > maxSize) {
         alert("File size must be less than 5MB.");
         return;
