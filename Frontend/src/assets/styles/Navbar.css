@@ -114,6 +114,28 @@ body {
     margin-left: auto;
     padding-right: 1rem;
   }
+
+  /* Mobile profile dropdown */
+  .profile-dropdown {
+    position: static;
+    margin-left: 0;
+    margin-top: 10px;
+    box-shadow: none;
+    border: none;
+    background: transparent;
+    min-width: auto;
+    padding: 0;
+  }
+
+  .profile-dropdown li {
+    padding: 8px 0;
+    border-bottom: none;
+  }
+
+  .profile-dropdown li:hover {
+    background-color: transparent;
+    color: #10b981;
+  }
 }
 
 /* Profile dropdown styles */

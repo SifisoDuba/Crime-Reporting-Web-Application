@@ -57,9 +57,7 @@ export default {
       }
     },
     toggleProfileDropdown() {
-      if (!this.isMobile) {
-        this.isProfileDropdownOpen = !this.isProfileDropdownOpen;
-      }
+      this.isProfileDropdownOpen = !this.isProfileDropdownOpen;
     },
     async fetchProfilePicture() {
       const idNumber = localStorage.getItem('idNumber');
