@@ -19,7 +19,8 @@
   </div>
 </template>
 <script>
-import axios from 'axios';
+
+import axios from "axios";
 import profilePic from "@/assets/images/profile.png";
 
 export default {
@@ -27,17 +28,19 @@ export default {
   data() {
     return {
       profileImage: profilePic,
-      name: "John",
-      surname: "Wick",
-      idNumber: "",
+      name: "",
+      surname: "",
     };
   },
-  mounted() {
-    this.idNumber = localStorage.getItem('idNumber') || '';
-    if (this.idNumber) {
-      this.fetchUserDetails(this.idNumber);
-      this.loadProfilePicture(this.idNumber);
-    }
+  created() {
+    axios.get("http://localhost:3000/user/profile")
+      .then(response => {
+        this.name = response.data.name;
+        this.surname = response.data.surname;
+      })
+      .catch(error => {
+        console.error("Failed to fetch user profile:", error);
+      });
   },
   methods: {
     async fetchUserDetails(idNumber) {
